@@ -28,7 +28,7 @@
 
 - [Managing PDFs in Node with pdf-lib | LogRocket](https://blog.logrocket.com/managing-pdfs-node-pdf-lib/) - 2022/02/04
 
----
+## another libs
 
 - [[GitHub] vbuch/node-signpdf](https://github.com/vbuch/node-signpdf) - Simple signing of PDFs in node.
 
@@ -36,6 +36,8 @@
 
 - [[GitHub] foliojs/pdfkit](https://github.com/foliojs/pdfkit) - A JavaScript PDF generation library for Node and the browser
 
----
+- [[GitHub] highkite/pdfAnnotate](https://github.com/highkite/pdfAnnotate)
+
+## reference
 
 - [Digital signatures: how Sleek leverages Cloud HSM to guarantee the integrity of legal documents | Google Developers](https://medium.com/google-developers/digital-signatures-how-sleek-leverages-cloud-hsm-to-guarantee-the-integrity-of-legal-documents-a7bd3b82faf6) - 2019/07/10
