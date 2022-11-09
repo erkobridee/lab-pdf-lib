@@ -15,12 +15,12 @@ const {
   https://github.com/Hopding/pdf-lib/issues/112#issuecomment-1049456413
 */
 
-/** adds a signature plaholder on the first page */
-const addSignaturePlaceholderToPdf = async (pdfDoc) => {
+/** adds a signature widget plaholder on the first page */
+const addSigWidgetPlaceholderToPdf = async (pdfDoc) => {
   const acroformId = "sigPlaceholderId";
 
-  const x = 5,
-    y = 5,
+  const bottom = 10,
+    right = 10,
     scale = 1,
     width = 250,
     height = 100,
@@ -30,10 +30,15 @@ const addSignaturePlaceholderToPdf = async (pdfDoc) => {
 
   //--------------------------------------------------------------------------//
 
-  const pdfPages = pdfDoc.getPages();
-  const pdfPage = pdfPages[0];
-
   const acroForm = pdfDoc.catalog.lookupMaybe(PDFName.of("AcroForm"), PDFDict);
+
+  // const pdfPages = pdfDoc.getPages();
+  // const pdfPage = pdfPages[0];
+  const pdfPage = pdfDoc.getPage(0);
+  const pdfPageWidth = pdfPage.getWidth();
+
+  const y = bottom;
+  const x = pdfPageWidth - (right + width * scale);
 
   //--------------------------------------------------------------------------//
 
@@ -124,5 +129,5 @@ const addSignaturePlaceholderToPdf = async (pdfDoc) => {
 };
 
 module.exports = {
-  addSignaturePlaceholderToPdf,
+  addSigWidgetPlaceholderToPdf,
 };

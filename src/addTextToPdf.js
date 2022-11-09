@@ -8,7 +8,7 @@ const { loadFontFile } = require("./fsHelper");
 const PDF_RGB_BLACK = rgb(0, 0, 0);
 
 const PADDING = 5;
-const fontSizeText = 24;
+const fontSizeText = 20;
 const fontSizeInfo = 8;
 
 //----------------------------------------------------------------------------//
@@ -96,30 +96,44 @@ const addTextToPdf = async (pdfDoc) => {
 
   //--------------------------------------------------------------------------//
 
-  const textOptions = {
-    x: textXPosition,
-    y:
-      baseYPosition +
-      PADDING +
-      infoHeightAtDesiredFontSize +
-      PADDING +
-      2 +
-      (extraText ? infoHeightAtDesiredFontSize + PADDING : 0),
-    size: fontSizeText,
-    font: fontText,
-    color: PDF_RGB_BLACK,
-  };
+  /*
+    since the pdf page coordinates are:
+    x: 0 = left
+    y: 0 = bottom left
 
-  pdfPage.drawText(text, textOptions);
+    starts the text rendering from bottom to top, calculating the current y 
+    position
+
+    some extra useful reference about positioning on a pdf page
+    https://github.com/Hopding/pdf-lib/issues/65#issuecomment-794934192
+  */
+
+  let currentY = baseYPosition + PADDING;
+
+  if (extraText) {
+    const extraTextOptions = {
+      x: textXPosition,
+      // y: baseYPosition + PADDING,
+      y: currentY,
+      size: fontSizeInfo,
+      font: fontInfo,
+      color: PDF_RGB_BLACK,
+    };
+
+    pdfPage.drawText(extraText, extraTextOptions);
+  }
 
   //--------------------------------------------------------------------------//
 
+  currentY += extraText ? infoHeightAtDesiredFontSize + PADDING : 0;
+
   const dateOptions = {
     x: textXPosition,
-    y:
-      baseYPosition +
-      PADDING +
-      (extraText ? infoHeightAtDesiredFontSize + PADDING : 0),
+    // y:
+    //   baseYPosition +
+    //   PADDING +
+    //   (extraText ? infoHeightAtDesiredFontSize + PADDING : 0),
+    y: currentY,
     size: fontSizeInfo,
     font: fontInfo,
     color: PDF_RGB_BLACK,
@@ -131,17 +145,24 @@ const addTextToPdf = async (pdfDoc) => {
 
   //--------------------------------------------------------------------------//
 
-  if (extraText) {
-    const extraTextOptions = {
-      x: textXPosition,
-      y: baseYPosition + PADDING,
-      size: fontSizeInfo,
-      font: fontInfo,
-      color: PDF_RGB_BLACK,
-    };
+  currentY += infoHeightAtDesiredFontSize + PADDING + 2;
 
-    pdfPage.drawText(extraText, extraTextOptions);
-  }
+  const textOptions = {
+    x: textXPosition,
+    // y:
+    //   baseYPosition +
+    //   PADDING +
+    //   infoHeightAtDesiredFontSize +
+    //   PADDING +
+    //   2 +
+    //   (extraText ? infoHeightAtDesiredFontSize + PADDING : 0),
+    y: currentY,
+    size: fontSizeText,
+    font: fontText,
+    color: PDF_RGB_BLACK,
+  };
+
+  pdfPage.drawText(text, textOptions);
 
   //--------------------------------------------------------------------------//
 

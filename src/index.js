@@ -5,8 +5,8 @@ const { loadPdfFile, writePdfFile } = require("./fsHelper");
 const { addTextToPdf } = require("./addTextToPdf");
 const { addPageToPdf } = require("./addPageToPdf");
 const {
-  addSignaturePlaceholderToPdf,
-} = require("./addSignaturePlaceholderToPdf");
+  addSigWidgetPlaceholderToPdf,
+} = require("./addSigWidgetPlaceholderToPdf");
 
 (async () => {
   const pdfInputFile = loadPdfFile();
@@ -17,7 +17,7 @@ const {
 
   pdfDoc = await addPageToPdf(pdfDoc);
   pdfDoc = await addTextToPdf(pdfDoc);
-  pdfDoc = await addSignaturePlaceholderToPdf(pdfDoc);
+  pdfDoc = await addSigWidgetPlaceholderToPdf(pdfDoc);
 
   const pdfDocBytes = await pdfDoc.save({ useObjectStreams: false });
   const pdfContentResult = Buffer.from(pdfDocBytes);
