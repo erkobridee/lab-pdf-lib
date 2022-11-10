@@ -1,9 +1,10 @@
 const { PDFDocument } = require("pdf-lib");
 
-const { loadPdfFile, writePdfFile } = require("./fsHelper");
+const { loadPdfFile, writePdfFile } = require("./helpers/fs");
 
-const { addTextToPdf } = require("./addTextToPdf");
-const { addPageToPdf } = require("./addPageToPdf");
+const { addPageTextCenterToPdf } = require("./addPageTextCenterToPdf");
+const { addSingleSignatoryToPdf } = require("./addSingleSignatoryToPdf");
+const { addSignatoriesToPdf } = require("./addSignatoriesToPdf");
 const {
   addSigWidgetPlaceholderToPdf,
 } = require("./addSigWidgetPlaceholderToPdf");
@@ -15,8 +16,9 @@ const {
     ignoreEncryption: true,
   });
 
-  pdfDoc = await addPageToPdf(pdfDoc);
-  pdfDoc = await addTextToPdf(pdfDoc);
+  pdfDoc = await addPageTextCenterToPdf(pdfDoc);
+  pdfDoc = await addSingleSignatoryToPdf(pdfDoc);
+  pdfDoc = await addSignatoriesToPdf(pdfDoc);
   pdfDoc = await addSigWidgetPlaceholderToPdf(pdfDoc);
 
   const pdfDocBytes = await pdfDoc.save({ useObjectStreams: false });
