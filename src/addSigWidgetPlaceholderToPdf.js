@@ -26,14 +26,11 @@ const addSigWidgetPlaceholderToPdf = async (pdfDoc) => {
     height = 100,
     borderWidth = 1,
     color = rgb(204 / 255, 204 / 255, 204 / 255);
-  // color = rgb(0, 0, 0);
 
   //--------------------------------------------------------------------------//
 
   const acroForm = pdfDoc.catalog.lookupMaybe(PDFName.of("AcroForm"), PDFDict);
 
-  // const pdfPages = pdfDoc.getPages();
-  // const pdfPage = pdfPages[0];
   const pdfPage = pdfDoc.getPage(0);
   const pdfPageWidth = pdfPage.getWidth();
 
