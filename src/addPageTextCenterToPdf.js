@@ -6,7 +6,7 @@ const { StandardFonts } = require("pdf-lib");
   https://github.com/Hopding/pdf-lib/blob/a082a8518c978fe73a8de5682c1fc9a75f744aae/src/api/sizes.ts#L1
 */
 
-const addPageToPdf = async (pdfDoc) => {
+const addPageTextCenterToPdf = async (pdfDoc) => {
   const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
   const currentLastIndex = pdfDoc.getPageCount() - 1;
@@ -32,4 +32,4 @@ const addPageToPdf = async (pdfDoc) => {
   return pdfDoc;
 };
 
-module.exports = { addPageToPdf };
+module.exports = { addPageTextCenterToPdf };

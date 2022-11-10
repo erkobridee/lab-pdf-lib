@@ -1,11 +1,10 @@
-const { StandardFonts, rgb } = require("pdf-lib");
+const { StandardFonts } = require("pdf-lib");
 const fontkit = require("@pdf-lib/fontkit");
 
-const { loadFontFile } = require("./fsHelper");
+const { loadFontFile } = require("./helpers/fs");
+const { COLOR } = require("./helpers/pdf");
 
 //----------------------------------------------------------------------------//
-
-const PDF_RGB_BLACK = rgb(0, 0, 0);
 
 const PADDING = 5;
 const fontSizeText = 20;
@@ -13,16 +12,10 @@ const fontSizeInfo = 8;
 
 //----------------------------------------------------------------------------//
 
-const addTextToPdf = async (pdfDoc) => {
+const addSingleSignatoryToPdf = async (pdfDoc) => {
   const today = new Date();
 
   //--------------------------------------------------------------------------//
-
-  // const pages = pdfDoc.getPages();
-  // const pagesLength = pages.length;
-  // const lastPageIndex = pagesLength - 1;
-  // const pdfPage = pages[lastPageIndex];
-  // const pdfPageHeight = pdfPage.getHeight();
 
   const pagesLength = pdfDoc.getPageCount();
   const lastPageIndex = pagesLength - 1;
@@ -57,8 +50,7 @@ const addTextToPdf = async (pdfDoc) => {
   //--------------------------------------------------------------------------//
 
   const x = 10,
-    y = 10,
-    borderWidth = 0;
+    y = 10;
 
   //--------------------------------------------------------------------------//
 
@@ -85,11 +77,7 @@ const addTextToPdf = async (pdfDoc) => {
       2 * PADDING,
     height: rectangleHeight,
 
-    color: PDF_RGB_BLACK,
-    borderWidth,
-
-    opacity: 0.05,
-    borderOpacity: 1,
+    color: COLOR.GHOST_WHITE,
   };
 
   pdfPage.drawRectangle(rectangleOptions);
@@ -117,7 +105,7 @@ const addTextToPdf = async (pdfDoc) => {
       y: currentY,
       size: fontSizeInfo,
       font: fontInfo,
-      color: PDF_RGB_BLACK,
+      color: COLOR.BLACK,
     };
 
     pdfPage.drawText(extraText, extraTextOptions);
@@ -136,7 +124,7 @@ const addTextToPdf = async (pdfDoc) => {
     y: currentY,
     size: fontSizeInfo,
     font: fontInfo,
-    color: PDF_RGB_BLACK,
+    color: COLOR.BLACK,
   };
 
   const dateText = `date: ${today.toISOString()}`;
@@ -159,7 +147,7 @@ const addTextToPdf = async (pdfDoc) => {
     y: currentY,
     size: fontSizeText,
     font: fontText,
-    color: PDF_RGB_BLACK,
+    color: COLOR.BLACK,
   };
 
   pdfPage.drawText(text, textOptions);
@@ -170,5 +158,5 @@ const addTextToPdf = async (pdfDoc) => {
 };
 
 module.exports = {
-  addTextToPdf,
+  addSingleSignatoryToPdf,
 };
