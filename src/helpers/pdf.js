@@ -183,6 +183,30 @@ const getTopBottomLeftRightValues = (value = 0, scale = 1) => {
   return { top: 0, bottom: 0, left: 0, right: 0 };
 };
 
+const getPDFCoordsLimits = ({ rectangle, paddings = 0, scale = 1 }) => {
+  const {
+    top: rectanglePaddingTop,
+    bottom: rectanglePaddingBottom,
+    left: rectanglePaddingLeft,
+    right: rectanglePaddingRight,
+  } = getTopBottomLeftRightValues(paddings, scale);
+
+  const {
+    x: rectangleX,
+    y: rectangleY,
+    width: rectangleWidth,
+    height: rectangleHeight,
+  } = rectangle;
+
+  const yTop = rectangleY + rectangleHeight - rectanglePaddingTop;
+  const yBottom = rectangleY + rectanglePaddingBottom;
+
+  const xRight = rectangleX + rectangleWidth - rectanglePaddingRight;
+  const xLeft = rectangleX + rectanglePaddingLeft;
+
+  return { yTop, yBottom, xLeft, xRight };
+};
+
 /**
  * get the pdf coords from pdf page
  *
@@ -246,13 +270,12 @@ const getPDFCoordsInsideRectangle = ({
   right,
   scale = 1,
   rectangle,
-  retanglePaddings = 0,
+  rectanglePaddings = 0,
   keepInside = false,
   rotateWith = true,
 }) => {
+  const requiredRectangleAttributes = ["x", "y", "width", "height"];
   if (isObject(rectangle)) {
-    const requiredRectangleAttributes = ["x", "y", "width", "height"];
-
     const missingRectangleAttributes = requiredRectangleAttributes.reduce(
       (acc, property) => {
         if (!rectangle.hasOwnProperty(property)) {
@@ -284,26 +307,13 @@ const getPDFCoordsInsideRectangle = ({
     rotateWith = true;
   }
 
-  const {
-    top: rectanglePaddingTop,
-    bottom: rectanglePaddingBottom,
-    left: rectanglePaddingLeft,
-    right: rectanglePaddingRight,
-  } = getTopBottomLeftRightValues(retanglePaddings, scale);
+  const { rotate: rectangleRotate } = rectangle;
 
-  const {
-    x: rectangleX,
-    y: rectangleY,
-    width: rectangleWidth,
-    height: rectangleHeight,
-    rotate: rectangleRotate,
-  } = rectangle;
-
-  const yTop = rectangleY + rectangleHeight - rectanglePaddingTop;
-  const yBottom = rectangleY + rectanglePaddingBottom;
-
-  const xRight = rectangleX + rectangleWidth - rectanglePaddingRight;
-  const xLeft = rectangleX + rectanglePaddingLeft;
+  const { yTop, yBottom, xLeft, xRight } = getPDFCoordsLimits({
+    rectangle,
+    paddings: rectanglePaddings,
+    scale,
+  });
 
   //---===---//
 
@@ -364,6 +374,8 @@ module.exports = {
   hex2rgb,
   hex2pdfRGB,
   COLOR,
+  getTopBottomLeftRightValues,
+  getPDFCoordsLimits,
   getPDFCoordsFromPage,
   getPDFCompensateRotation,
   getPDFCoordsInsideRectangle,
