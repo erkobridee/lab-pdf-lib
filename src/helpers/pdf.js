@@ -1,4 +1,8 @@
-const { rgb } = require("pdf-lib");
+const { rgb, toRadians } = require("pdf-lib");
+
+const { isNumber, isObject } = require("./is");
+
+//----------------------------------------------------------------------------//
 
 const hexCharacters = "a-f\\d";
 const match3or4Hex = `#?[${hexCharacters}]{3}[${hexCharacters}]?`;
@@ -70,14 +74,297 @@ const hex2pdfRGB = (hexString) => {
 const COLOR = {
   BLACK: rgb(0, 0, 0),
   WHITE: rgb(1, 1, 1),
+  RED: pdfRGB(255, 0, 0),
+  GREEN: pdfRGB(0, 255, 0),
+  BLUE: pdfRGB(0, 0, 255),
   AIR_FORCE_BLUE: pdfRGB(93, 138, 168),
   GAINSBORO: pdfRGB(220, 220, 220),
   GHOST_WHITE: pdfRGB(248, 248, 255),
   NAVAJO_WHITE: pdfRGB(255, 222, 173),
 };
 
+//----------------------------------------------------------------------------//
+
+/**
+ * kevinswartz matrix calculation
+ * https://github.com/Hopding/pdf-lib/issues/65#issuecomment-468064410
+ *
+ * the height attribute on the parameter it's the rectangle height or it could be the font-size value
+ *
+ * returns { x: number, y: number }
+ */
+const getPDFCompensateRotation = ({
+  x,
+  y,
+  height,
+  scale = 1,
+  onWidth,
+  onHeight,
+  rotation = { type: "degrees", angle: 0 },
+}) => {
+  const rotationRads = toRadians(rotation);
+  const { angle } = rotation;
+
+  const coordsFromBottomLeft = {
+    x: x / scale,
+    y: [90, 270].includes(angle)
+      ? onWidth - (y + height) / scale
+      : onHeight - (y + height) / scale,
+  };
+
+  switch (angle) {
+    case 90:
+      return {
+        x:
+          coordsFromBottomLeft.x * Math.cos(rotationRads) -
+          coordsFromBottomLeft.y * Math.sin(rotationRads) +
+          onWidth,
+        y:
+          coordsFromBottomLeft.x * Math.sin(rotationRads) +
+          coordsFromBottomLeft.y * Math.cos(rotationRads),
+      };
+    case 180:
+      return {
+        x:
+          coordsFromBottomLeft.x * Math.cos(rotationRads) -
+          coordsFromBottomLeft.y * Math.sin(rotationRads) +
+          onWidth,
+        y:
+          coordsFromBottomLeft.x * Math.sin(rotationRads) +
+          coordsFromBottomLeft.y * Math.cos(rotationRads) +
+          onHeight,
+      };
+    case 270:
+      return {
+        x:
+          coordsFromBottomLeft.x * Math.cos(rotationRads) -
+          coordsFromBottomLeft.y * Math.sin(rotationRads),
+        y:
+          coordsFromBottomLeft.x * Math.sin(rotationRads) +
+          coordsFromBottomLeft.y * Math.cos(rotationRads) +
+          onHeight,
+      };
+    default:
+      return { x: coordsFromBottomLeft.x, y: coordsFromBottomLeft.y };
+  }
+};
+
+/**
+ * from a given number or partial distances object, gets the object of Distances
+ *
+ * interface Distances {
+ *  top: number;
+ *  bottom: number;
+ *  left: number;
+ *  right: number;
+ * }
+ *
+ * @param {number | Partial<Distances>} value
+ * @param {number} scale
+ *
+ * @returns Distances
+ */
+const getTopBottomLeftRightValues = (value = 0, scale = 1) => {
+  if (isNumber(value) && value > 0) {
+    value = value * scale;
+    return { top: value, bottom: value, left: value, right: value };
+  }
+
+  if (isObject(value)) {
+    const { top = 0, bottom = 0, left = 0, right = 0 } = value;
+    return {
+      top: top * scale,
+      bottom: bottom * scale,
+      left: left * scale,
+      right: right * scale,
+    };
+  }
+
+  return { top: 0, bottom: 0, left: 0, right: 0 };
+};
+
+/**
+ * get the pdf coords from pdf page
+ *
+ * pdf positioning system: x: 0 = left and y: 0 = bottom, from x: 0 = left and y: 0 = top
+ */
+const getPDFCoordsFromPage = ({
+  x,
+  y,
+  width,
+  height,
+  margins = 0,
+  scale = 1,
+  pdfPage,
+}) => {
+  const rotation = pdfPage.getRotation();
+
+  const { width: pageWidth, height: pageHeight } = pdfPage.getSize();
+
+  const { top, bottom, left, right } = getTopBottomLeftRightValues(
+    margins,
+    scale
+  );
+
+  x = x + left;
+  y = y + top;
+
+  width = width * scale - (left + right);
+  height = height * scale - (top + bottom);
+
+  const correction = getPDFCompensateRotation({
+    x,
+    y,
+    height,
+    scale,
+    onWidth: pageWidth,
+    onHeight: pageHeight,
+    rotation,
+  });
+
+  return {
+    x: correction.x,
+    y: correction.y,
+    width,
+    height,
+  };
+};
+
+/**
+ * keep in mind that the pdf positioning orientation start at left (x: 0) and bottom (y: 0)
+ *
+ * the parameters consider the positioning orientation from left (x: 0) and top (y: 0)
+ */
+const getPDFCoordsInsideRectangle = ({
+  x,
+  y,
+  width = 10,
+  height = 10,
+  top,
+  bottom,
+  left,
+  right,
+  scale = 1,
+  rectangle,
+  retanglePaddings = 0,
+  keepInside = false,
+  rotateWith = true,
+}) => {
+  if (isObject(rectangle)) {
+    const requiredRectangleAttributes = ["x", "y", "width", "height"];
+
+    const missingRectangleAttributes = requiredRectangleAttributes.reduce(
+      (acc, property) => {
+        if (!rectangle.hasOwnProperty(property)) {
+          acc.push(property);
+        }
+        return acc;
+      },
+      []
+    );
+
+    if (missingRectangleAttributes.length > 0) {
+      throw new Error(
+        `missing attributes { ${missingRectangleAttributes.join(
+          ", "
+        )} } on the Rectangle object`
+      );
+    }
+  } else {
+    throw Error(
+      `the rectangle attribute must be an object that defines { ${requiredRectangleAttributes.join(
+        ", "
+      )} }`
+    );
+  }
+
+  //---===---//
+
+  if (!rotateWith && keepInside) {
+    rotateWith = true;
+  }
+
+  const {
+    top: rectanglePaddingTop,
+    bottom: rectanglePaddingBottom,
+    left: rectanglePaddingLeft,
+    right: rectanglePaddingRight,
+  } = getTopBottomLeftRightValues(retanglePaddings, scale);
+
+  const {
+    x: rectangleX,
+    y: rectangleY,
+    width: rectangleWidth,
+    height: rectangleHeight,
+    rotate: rectangleRotate,
+  } = rectangle;
+
+  const yTop = rectangleY + rectangleHeight - rectanglePaddingTop;
+  const yBottom = rectangleY + rectanglePaddingBottom;
+
+  const xRight = rectangleX + rectangleWidth - rectanglePaddingRight;
+  const xLeft = rectangleX + rectanglePaddingLeft;
+
+  //---===---//
+
+  let newWidth = width * scale;
+  let newHeight = height * scale;
+
+  let newX = xLeft + (x ?? 0);
+  let newY = yTop - (height + (y ?? 0));
+
+  if (isNumber(left) || isNumber(right)) {
+    if (isNumber(left)) {
+      newX = xLeft + left;
+    }
+
+    if ((isNumber(left) || isNumber(x)) && isNumber(right)) {
+      newWidth = xRight - newX - right;
+    } else if (isNumber(right)) {
+      newX = xRight - (newWidth + right);
+    }
+  }
+
+  if (isNumber(top) || isNumber(bottom)) {
+    if (isNumber(bottom)) {
+      newY = yBottom + bottom;
+    }
+
+    if ((isNumber(bottom) || isNumber(y)) && isNumber(top)) {
+      newHeight = yTop - newY - top;
+    } else if (isNumber(top)) {
+      newY = yTop - (newHeight + top);
+    }
+  }
+
+  if (keepInside) {
+    const xWidth = newX + newWidth;
+    if (xWidth > xRight) {
+      newWidth = newWidth - (xRight - xWidth);
+    }
+
+    const yHeight = newY + newHeight;
+    if (yHeight > yTop) {
+      newHeight = newHeight - (yTop - yHeight);
+    }
+  }
+
+  return {
+    x: newX,
+    y: newY,
+    width: newWidth,
+    height: newHeight,
+    rotate: rotateWith ? rectangleRotate : undefined,
+  };
+};
+
+//----------------------------------------------------------------------------//
+
 module.exports = {
   hex2rgb,
   hex2pdfRGB,
   COLOR,
+  getPDFCoordsFromPage,
+  getPDFCompensateRotation,
+  getPDFCoordsInsideRectangle,
 };
