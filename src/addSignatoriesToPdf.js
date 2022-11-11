@@ -4,6 +4,7 @@
 // const { loadFontFile } = require("./helpers/fs");
 const {
   COLOR,
+  getPDFCoordsLimits,
   getPDFCoordsFromPage,
   getPDFCoordsInsideRectangle,
 } = require("./helpers/pdf");
@@ -19,47 +20,28 @@ const PDF_RGB_CENTRAL_VERTICAL_LINE = COLOR.NAVAJO_WHITE;
 // const PDF_RGB_SIG_BG = COLOR.GHOST_WHITE;
 // const PDF_RGB_SIG_FONT = COLOR.BLACK;
 
-const drawCentralVerticalLine = (
-  pdfPage,
-  pageWidth,
-  pageHeight,
-  pageMargin = MARGIN
-) => {
-  const x = pageWidth / 2;
+const drawCentralVerticalLine = (pdfPage, pageContentRectangle) => {
+  const { xRight, yTop, yBottom } = getPDFCoordsLimits({
+    rectangle: pageContentRectangle,
+  });
+
+  const x = xRight / 2;
 
   // https://pdf-lib.js.org/docs/api/interfaces/pdfpagedrawlineoptions
   const lineOptions = {
     thickness: 1,
     color: PDF_RGB_CENTRAL_VERTICAL_LINE,
-    end: { x, y: pageHeight - pageMargin },
-    start: { x, y: pageMargin },
+    end: { x, y: yTop },
+    start: { x, y: yBottom },
   };
 
   pdfPage.drawLine(lineOptions);
 };
 
-const drawPageMargins = (
-  pdfPage,
-  pageWidth,
-  pageHeight,
-  pageMargin = MARGIN
-) => {
+const drawPageMargins = (pdfPage, pageContentRectangle) => {
   // https://pdf-lib.js.org/docs/api/interfaces/pdfpagedrawrectangleoptions
   const rectangleOptions = {
-    ...getPDFCoordsFromPage({
-      x: 0,
-      y: 0,
-      width: pageWidth,
-      height: pageHeight,
-      margins: pageMargin,
-      // margins: {
-      //   top: 20,
-      //   bottom: 30,
-      //   left: 15,
-      //   right: 40,
-      // },
-      pdfPage,
-    }),
+    ...pageContentRectangle,
 
     borderColor: PDF_RGB_MARGIN,
     borderWidth: 1,
@@ -73,12 +55,20 @@ const drawPageMargins = (
   pdfPage.drawRectangle(rectangleOptions);
 };
 
-const calculateSealPlacePosition = ({
-  pageWidth,
-  pageMargin = MARGIN,
+const calculateSealRectangle = ({
+  bottom = 0,
+  right = 0,
   width = 315,
   height = 140,
-}) => ({ y: pageMargin, x: pageWidth - (pageMargin + width), width, height });
+  pageContentRectangle,
+}) =>
+  getPDFCoordsInsideRectangle({
+    bottom,
+    right,
+    width,
+    height,
+    rectangle: pageContentRectangle,
+  });
 
 const drawPageSealPlace = (pdfPage, sealPosition) => {
   // https://pdf-lib.js.org/docs/api/interfaces/pdfpagedrawrectangleoptions
@@ -147,9 +137,8 @@ const drawSignatory = (signatory, options) => {
 const drawSignatories = async ({
   pdfDoc,
   pdfPage,
-  pageWidth,
-  pageHeight,
-  pageMargin = MARGIN,
+  pageContentRectangle,
+  sealPosition,
   padding = PADDING,
   gap = GAP,
   fontSizeText = 20,
@@ -162,8 +151,8 @@ const drawSignatories = async ({
   // const fontSizeInfo = 8;
 
   pdfPage.drawText(JSON.stringify(signatories, null, 2), {
-    x: pageMargin,
-    y: pageHeight - pageMargin,
+    x: pageContentRectangle.x,
+    y: pageContentRectangle.y + pageContentRectangle.height,
     size: 8,
   });
 
@@ -184,20 +173,27 @@ const addSignatoriesToPdf = async (pdfDoc) => {
 
   let pdfPage = pdfDoc.addPage([pageWidth, pageHeight]);
 
-  drawPageMargins(pdfPage, pageWidth, pageHeight);
-  drawCentralVerticalLine(pdfPage, pageWidth, pageHeight);
+  const pageContentRectangle = getPDFCoordsFromPage({
+    x: 0,
+    y: 0,
+    width: pageWidth,
+    height: pageHeight,
+    margins: MARGIN,
+    pdfPage,
+  });
 
-  const sealPosition = calculateSealPlacePosition({
-    pageWidth,
-    pageHeight,
+  drawPageMargins(pdfPage, pageContentRectangle);
+  drawCentralVerticalLine(pdfPage, pageContentRectangle);
+
+  const sealPosition = calculateSealRectangle({
+    pageContentRectangle,
   });
 
   pdfPage = await drawSignatories({
     pdfDoc,
     pdfPage,
-    pageWidth,
-    pageHeight,
     sealPosition,
+    pageContentRectangle,
   });
 
   drawPageSealPlace(pdfPage, sealPosition);
