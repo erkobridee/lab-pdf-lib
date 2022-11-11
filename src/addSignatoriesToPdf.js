@@ -1,8 +1,12 @@
-const { StandardFonts } = require("pdf-lib");
-const fontkit = require("@pdf-lib/fontkit");
+// const { StandardFonts } = require("pdf-lib");
+// const fontkit = require("@pdf-lib/fontkit");
 
-const { loadFontFile } = require("./helpers/fs");
-const { COLOR } = require("./helpers/pdf");
+// const { loadFontFile } = require("./helpers/fs");
+const {
+  COLOR,
+  getPDFCoordsFromPage,
+  getPDFCoordsInsideRectangle,
+} = require("./helpers/pdf");
 const { generateSignatories } = require("./helpers/signatories");
 
 const MARGIN = 10;
@@ -13,6 +17,7 @@ const PDF_RGB_MARGIN = COLOR.AIR_FORCE_BLUE;
 const PDF_RGB_SEAL = COLOR.GAINSBORO;
 const PDF_RGB_CENTRAL_VERTICAL_LINE = COLOR.NAVAJO_WHITE;
 // const PDF_RGB_SIG_BG = COLOR.GHOST_WHITE;
+// const PDF_RGB_SIG_FONT = COLOR.BLACK;
 
 const drawCentralVerticalLine = (
   pdfPage,
@@ -41,10 +46,20 @@ const drawPageMargins = (
 ) => {
   // https://pdf-lib.js.org/docs/api/interfaces/pdfpagedrawrectangleoptions
   const rectangleOptions = {
-    x: pageMargin,
-    y: pageMargin,
-    width: pageWidth - pageMargin * 2,
-    height: pageHeight - pageMargin * 2,
+    ...getPDFCoordsFromPage({
+      x: 0,
+      y: 0,
+      width: pageWidth,
+      height: pageHeight,
+      margins: pageMargin,
+      // margins: {
+      //   top: 20,
+      //   bottom: 30,
+      //   left: 15,
+      //   right: 40,
+      // },
+      pdfPage,
+    }),
 
     borderColor: PDF_RGB_MARGIN,
     borderWidth: 1,
@@ -151,6 +166,8 @@ const drawSignatories = async ({
     y: pageHeight - pageMargin,
     size: 8,
   });
+
+  // TODO: define the code
 
   return pdfPage;
 };
