@@ -32,14 +32,17 @@ const isFunction = (value) => typeof value === TYPE_OF.FUNCTION;
 
 const isArray = (value) => value && Array.isArray(value);
 
+const isTypeOfObject = (value) => typeof value === TYPE_OF.OBJECT;
+
 const isObject = (value) =>
-  typeof value === TYPE_OF.OBJECT &&
+  isTypeOfObject(value) &&
   !isNull(value) &&
   !isArray(value) &&
   isFunction(value.hasOwnProperty);
 
 module.exports = {
   TYPE_OF,
+  isTypeOfObject,
   isUndefined,
   isSymbol,
   isNumber,
