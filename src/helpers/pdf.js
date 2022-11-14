@@ -415,6 +415,25 @@ const getPDFCoordsInsideRectangle = ({
 
 //----------------------------------------------------------------------------//
 
+const getLastPdfPage = (pdfDoc) => pdfDoc.getPage(pdfDoc.getPageCount() - 1);
+
+/**
+ * pdfDoc is the document representation from the pdf-lib
+ *
+ * size contains the width and height
+ *
+ * https://pdf-lib.js.org/docs/api/#const-pagesizes
+ */
+const addNewPdfPage = ({ pdfDoc, size }) => {
+  const lastPdfPage = getLastPdfPage(pdfDoc);
+  const lastPdfPageSize = lastPdfPage.getSize();
+  const { width = lastPdfPageSize.width, height = lastPdfPageSize.height } =
+    size ?? {};
+  return pdfDoc.addPage([width, height]);
+};
+
+//----------------------------------------------------------------------------//
+
 module.exports = {
   loadPdfFonts,
   hex2rgb,
@@ -425,4 +444,6 @@ module.exports = {
   getPDFCoordsFromPage,
   getPDFCompensateRotation,
   getPDFCoordsInsideRectangle,
+  getLastPdfPage,
+  addNewPdfPage,
 };
