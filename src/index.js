@@ -4,6 +4,9 @@ const { loadPdfFile, writePdfFile } = require("./helpers/fs");
 
 const { addPageTextCenterToPdf } = require("./addPageTextCenterToPdf");
 const { addSingleSignatoryToPdf } = require("./addSingleSignatoryToPdf");
+const {
+  addTwoOrFiveSignatoriesToPdf,
+} = require("./addTwoOrFiveSignatoriesToPdf");
 const { addSignatoriesToPdf } = require("./addSignatoriesToPdf");
 const {
   addSigWidgetPlaceholderToPdf,
@@ -18,7 +21,8 @@ const {
 
   pdfDoc = await addPageTextCenterToPdf(pdfDoc);
   pdfDoc = await addSingleSignatoryToPdf(pdfDoc);
-  pdfDoc = await addSignatoriesToPdf(pdfDoc);
+  pdfDoc = await addTwoOrFiveSignatoriesToPdf(pdfDoc, 2, true);
+  pdfDoc = await addSignatoriesToPdf(pdfDoc, false);
   pdfDoc = await addSigWidgetPlaceholderToPdf(pdfDoc);
 
   const pdfDocBytes = await pdfDoc.save({ useObjectStreams: false });
