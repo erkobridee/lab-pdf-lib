@@ -51,7 +51,7 @@ const drawPageMargins = (pdfPage, pageContentRectangle) => {
 
   DEBUG &&
     console.log(
-      "addSignatoriesToPdf > drawPageMargins > rectangle options: ",
+      "addSignatoriesToPdfV1 > drawPageMargins > rectangle options: ",
       rectangleOptions
     );
 
@@ -83,7 +83,7 @@ const drawPageSealPlace = (pdfPage, sealPosition) => {
 
   DEBUG &&
     console.log(
-      "addSignatoriesToPdf > drawPageSealPlace > rectangle options: ",
+      "addSignatoriesToPdfV1 > drawPageSealPlace > rectangle options: ",
       rectangleOptions
     );
 
@@ -148,7 +148,7 @@ const drawSignatories = async ({
   fontSizeText = 20,
   fontSizeInfo = 8,
 }) => {
-  const signatories = generateSignatories();
+  const signatories = generateSignatories(2, 4);
 
   // const padding = 5;
   // const fontSizeText = 20;
@@ -173,7 +173,7 @@ const addSignatoriesToPdf = async (pdfDoc, debug = false) => {
   const { width: pageWidth, height: pageHeight } = currentLastPage.getSize();
 
   DEBUG &&
-    console.log("addSignatoriesToPdf > current last page size: ", {
+    console.log("addSignatoriesToPdfV1` > current last page size: ", {
       width: pageWidth,
       height: pageHeight,
     });
