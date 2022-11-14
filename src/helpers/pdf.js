@@ -1,6 +1,51 @@
-const { rgb, toRadians } = require("pdf-lib");
+const { StandardFonts, rgb, toRadians } = require("pdf-lib");
+const fontkit = require("@pdf-lib/fontkit");
 
 const { isNumber, isObject } = require("./is");
+const { FONT_NAME, loadFontFile } = require("./fs");
+const { roundUp } = require("./math");
+
+//----------------------------------------------------------------------------//
+
+const FONT_SIZE_TEXT = 20;
+const FONT_SIZE_INFO = 8;
+
+const loadPdfFonts = async (pdfDoc, options = {}) => {
+  const {
+    textFontName = FONT_NAME.PATRICK_HAND,
+    fontSizeText = FONT_SIZE_TEXT,
+    fontSizeInfo = FONT_SIZE_INFO,
+  } = options;
+
+  const fontBuffer = loadFontFile(textFontName);
+
+  let fontText;
+  if (fontBuffer) {
+    pdfDoc.registerFontkit(fontkit);
+    fontText = await pdfDoc.embedFont(fontBuffer);
+  } else {
+    fontText = await pdfDoc.embedFont(StandardFonts.CourierOblique);
+  }
+  const fontInfo = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+  const textHeightAtDesiredFontSize = roundUp(
+    fontText.heightAtSize(fontSizeText)
+  );
+  const infoHeightAtDesiredFontSize = roundUp(
+    fontInfo.heightAtSize(fontSizeInfo)
+  );
+
+  return {
+    fontText,
+    fontInfo,
+
+    fontSizeText,
+    fontSizeInfo,
+
+    textHeightAtDesiredFontSize,
+    infoHeightAtDesiredFontSize,
+  };
+};
 
 //----------------------------------------------------------------------------//
 
@@ -230,11 +275,11 @@ const getPDFCoordsFromPage = ({
     scale
   );
 
-  x = x + left;
-  y = y + top;
+  x = (x ?? 0) + left;
+  y = (y ?? 0) + top;
 
-  width = width * scale - (left + right);
-  height = height * scale - (top + bottom);
+  width = (width ?? pageWidth) * scale - (left + right);
+  height = (height ?? pageHeight) * scale - (top + bottom);
 
   const correction = getPDFCompensateRotation({
     x,
@@ -371,6 +416,7 @@ const getPDFCoordsInsideRectangle = ({
 //----------------------------------------------------------------------------//
 
 module.exports = {
+  loadPdfFonts,
   hex2rgb,
   hex2pdfRGB,
   COLOR,
