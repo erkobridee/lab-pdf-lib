@@ -38,12 +38,20 @@ const FILES_DIR = "files";
 
 const FONTS_DIR = path.join(ROOT_DIR, FILES_DIR, "font");
 
-const FONT_FILE_MAP = {
-  PatrickHand: path.join(FONTS_DIR, "PatrickHand-Regular.ttf"),
-  ArchitectsDaughter: path.join(FONTS_DIR, "ArchitectsDaughter.ttf"),
+const FONT_NAME = {
+  PATRICK_HAND: "PatrickHand",
+  ARCHITECTS_DAUGHTER: "ArchitectsDaughter",
 };
 
-const loadFontFile = (fontName = "PatrickHand") =>
+const FONT_FILE_MAP = {
+  [FONT_NAME.PATRICK_HAND]: path.join(FONTS_DIR, "PatrickHand-Regular.ttf"),
+  [FONT_NAME.ARCHITECTS_DAUGHTER]: path.join(
+    FONTS_DIR,
+    "ArchitectsDaughter.ttf"
+  ),
+};
+
+const loadFontFile = (fontName = FONT_NAME.PATRICK_HAND) =>
   loadFile(FONT_FILE_MAP[fontName]);
 
 const PDF_INPUT_FILE = path.join(ROOT_DIR, `${FILES_DIR}/input/source.pdf`);
@@ -61,6 +69,7 @@ const writePdfFile = (fileContent) => writeFile(PDF_OUTPUT_FILE, fileContent);
 // });
 
 module.exports = {
+  FONT_NAME,
   loadFontFile,
   loadPdfFile,
   writePdfFile,
