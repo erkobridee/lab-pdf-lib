@@ -1,3 +1,4 @@
+const { generateSignatories } = require("./helpers/signatories");
 const { roundUp, roundDown } = require("./helpers/math");
 const {
   COLOR,
@@ -7,7 +8,6 @@ const {
   getPDFCoordsInsideRectangle,
   getTopBottomLeftRightValues,
 } = require("./helpers/pdf");
-const { generateSignatories } = require("./helpers/signatories");
 
 //----------------------------------------------------------------------------//
 
@@ -18,10 +18,6 @@ const GAP = MARGIN;
 const PADDING = 5;
 
 const PDF_RGB_MARGIN = COLOR.AIR_FORCE_BLUE;
-// const PDF_RGB_CENTRAL_VERTICAL_LINE = COLOR.NAVAJO_WHITE;
-const PDF_RGB_SIGNATORY_BG = COLOR.GHOST_WHITE;
-const PDF_RGB_SIGNATORY_COLOR = COLOR.BLACK;
-// const PDF_RGB_SEAL = COLOR.GAINSBORO;
 
 //----------------------------------------------------------------------------//
 
