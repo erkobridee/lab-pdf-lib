@@ -18,8 +18,9 @@ const GAP = MARGIN;
 const PADDING = 5;
 
 const PDF_RGB_MARGIN = COLOR.AIR_FORCE_BLUE;
-const PDF_RGB_CENTRAL_VERTICAL_LINE = COLOR.NAVAJO_WHITE;
+// const PDF_RGB_CENTRAL_VERTICAL_LINE = COLOR.NAVAJO_WHITE;
 const PDF_RGB_SIGNATORY_BG = COLOR.GHOST_WHITE;
+const PDF_RGB_SIGNATORY_COLOR = COLOR.BLACK;
 // const PDF_RGB_SEAL = COLOR.GAINSBORO;
 
 //----------------------------------------------------------------------------//
@@ -58,7 +59,7 @@ const drawLines = ({
   //---===---//
   // horizontal lines
 
-  let yLine = yTop - 160;
+  let yLine = yTop - 1;
   pdfPage.drawLine({
     thickness: 1,
     color: COLOR.BLUE,
@@ -66,7 +67,7 @@ const drawLines = ({
     end: { x: xRight / 2 + MARGIN / 2, y: yLine },
   });
 
-  yLine = yTop - 165;
+  yLine = yTop + 1;
   pdfPage.drawLine({
     thickness: 1,
     color: COLOR.BLUE,
@@ -82,16 +83,21 @@ const renderSignatory = ({
   pageContentRectangle,
 
   padding,
+  textGap,
 
   signatory,
 
-  // fontText,
-  // fontInfo,
+  fontText,
+  fontInfo,
 
-  // fontSizeText,
-  // fontSizeInfo,
+  fontSizeText,
+  fontSizeInfo,
+
+  borderColor = COLOR.AIR_FORCE_BLUE,
+  bgColor = COLOR.GHOST_WHITE,
+  textColor = COLOR.BLACK,
 }) => {
-  const { x, y, width, height } = signatory;
+  const { x, y, width, height, name, uuid, shortId } = signatory;
 
   const signatorySignatoryBGRectangle = getPDFCoordsInsideRectangle({
     x,
@@ -103,15 +109,74 @@ const renderSignatory = ({
 
   pdfPage.drawRectangle({
     ...signatorySignatoryBGRectangle,
-    color: PDF_RGB_SIGNATORY_BG,
+    color: bgColor,
 
-    borderColor: PDF_RGB_MARGIN,
-    borderWidth: 1,
+    ...(DEBUG
+      ? {
+          borderColor: borderColor,
+          borderWidth: 1,
+        }
+      : {}),
   });
 
   padding = getTopBottomLeftRightValues(padding);
 
-  // TODO: define the text rendering
+  const signatorySignatoryContentRectangle = getPDFCoordsInsideRectangle({
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    rectangle: signatorySignatoryBGRectangle,
+    rectanglePaddings: padding,
+  });
+
+  DEBUG &&
+    pdfPage.drawRectangle({
+      ...signatorySignatoryContentRectangle,
+      color: bgColor,
+
+      borderColor: borderColor,
+      borderWidth: 1,
+    });
+
+  let textTop = textGap;
+
+  pdfPage.drawText(name, {
+    color: textColor,
+    size: fontSizeText,
+    font: fontText,
+    ...getPDFCoordsInsideRectangle({
+      rectangle: signatorySignatoryContentRectangle,
+      top: textTop,
+      height: fontSizeText - textGap,
+    }),
+  });
+
+  const baseInfoText = {
+    color: textColor,
+    size: fontSizeInfo,
+    font: fontInfo,
+  };
+
+  textTop += fontSizeText + textGap;
+  pdfPage.drawText(`uuid: ${uuid}`, {
+    ...baseInfoText,
+    ...getPDFCoordsInsideRectangle({
+      rectangle: signatorySignatoryContentRectangle,
+      height: fontSizeInfo,
+      top: textTop,
+    }),
+  });
+
+  textTop += fontSizeInfo + textGap;
+  pdfPage.drawText(`shortId: ${shortId}`, {
+    ...baseInfoText,
+    ...getPDFCoordsInsideRectangle({
+      rectangle: signatorySignatoryContentRectangle,
+      height: fontSizeInfo,
+      top: textTop,
+    }),
+  });
 };
 
 const renderSignatories = ({
@@ -123,14 +188,12 @@ const renderSignatories = ({
   gap = GAP,
   padding = PADDING,
   textGap = PADDING,
-}) => {
-  // const signatories = generateSignatories(2, 5, 1);
-  const signatories = generateSignatories(5, 8, 1);
 
-  // DEBUG &&
-  //   console.log("addTwoOrFiveSignatoriesToPdf > renderSignatories: ", {
-  //     signatories,
-  //   });
+  borderColor = COLOR.AIR_FORCE_BLUE,
+  bgColor = COLOR.GHOST_WHITE,
+  textColor = COLOR.BLACK,
+}) => {
+  const signatories = generateSignatories(2, 10);
 
   padding = getTopBottomLeftRightValues(padding);
 
@@ -172,7 +235,8 @@ const renderSignatories = ({
   let row = 0,
     x = 0;
   const signatoriesComputed = signatories.map(({ name, uuid, shortId }) => {
-    const nameWidth = roundUp(fontText.widthOfTextAtSize(name, fontSizeText));
+    const nameWidth =
+      roundUp(fontText.widthOfTextAtSize(name, fontSizeText)) + fontSizeText;
 
     let largestWidth = nameWidth;
 
@@ -200,12 +264,6 @@ const renderSignatories = ({
     const y = rowHeight * row;
 
     const computed = {
-      meta: JSON.stringify({
-        nameWidth,
-        uuidWidth,
-        shortIdWidth,
-        totalWidth,
-      }),
       name,
       uuid,
       shortId,
@@ -213,6 +271,7 @@ const renderSignatories = ({
       height: signatoryTotalHeight,
       x,
       y,
+      ...(DEBUG ? { nameWidth, uuidWidth, shortIdWidth, totalWidth } : {}),
     };
 
     renderSignatory({
@@ -222,12 +281,17 @@ const renderSignatories = ({
       signatory: computed,
 
       padding,
+      textGap,
 
       fontText,
       fontInfo,
 
       fontSizeText,
       fontSizeInfo,
+
+      borderColor,
+      bgColor,
+      textColor,
     });
 
     if (width > maxSignatureAvailableWidth) {
@@ -261,11 +325,7 @@ const renderSignatories = ({
 
 //----------------------------------------------------------------------------//
 
-const addTwoOrFiveSignatoriesToPdf = async (
-  pdfDoc,
-  onPage = 2,
-  debug = false
-) => {
+const addSomeSignatoriesToPdf = async (pdfDoc, onPage = 2, debug = false) => {
   DEBUG = debug;
 
   onPage = onPage - 1;
@@ -285,18 +345,21 @@ const addTwoOrFiveSignatoriesToPdf = async (
 
   const pdfFonts = await loadPdfFonts(pdfDoc);
 
-  drawMargins({ pdfPage, pageContentRectangle });
   renderSignatories({
     pdfPage,
     pageContentRectangle,
     pageContentCoordsLimits,
     pdfFonts,
   });
-  drawLines({ pdfPage, pageContentCoordsLimits, pageContentRectangle });
+
+  if (DEBUG) {
+    drawMargins({ pdfPage, pageContentRectangle });
+    drawLines({ pdfPage, pageContentCoordsLimits, pageContentRectangle });
+  }
 
   return pdfDoc;
 };
 
 module.exports = {
-  addTwoOrFiveSignatoriesToPdf,
+  addSomeSignatoriesToPdf,
 };
