@@ -10,6 +10,8 @@ const {
 } = require("./helpers/pdf");
 const { generateSignatories } = require("./helpers/signatories");
 
+let DEBUG = false;
+
 const MARGIN = 10;
 const GAP = MARGIN;
 const PADDING = 5;
@@ -47,10 +49,11 @@ const drawPageMargins = (pdfPage, pageContentRectangle) => {
     borderWidth: 1,
   };
 
-  console.log(
-    "addSignatoriesToPdf > drawPageMargins > rectangle options: ",
-    rectangleOptions
-  );
+  DEBUG &&
+    console.log(
+      "addSignatoriesToPdf > drawPageMargins > rectangle options: ",
+      rectangleOptions
+    );
 
   pdfPage.drawRectangle(rectangleOptions);
 };
@@ -78,10 +81,11 @@ const drawPageSealPlace = (pdfPage, sealPosition) => {
     color: PDF_RGB_SEAL,
   };
 
-  console.log(
-    "addSignatoriesToPdf > drawPageSealPlace > rectangle options: ",
-    rectangleOptions
-  );
+  DEBUG &&
+    console.log(
+      "addSignatoriesToPdf > drawPageSealPlace > rectangle options: ",
+      rectangleOptions
+    );
 
   pdfPage.drawRectangle(rectangleOptions);
 };
@@ -161,23 +165,22 @@ const drawSignatories = async ({
   return pdfPage;
 };
 
-const addSignatoriesToPdf = async (pdfDoc) => {
+const addSignatoriesToPdf = async (pdfDoc, debug = false) => {
+  DEBUG = debug;
+
   const currentLastIndex = pdfDoc.getPageCount() - 1;
   const currentLastPage = pdfDoc.getPage(currentLastIndex);
   const { width: pageWidth, height: pageHeight } = currentLastPage.getSize();
 
-  console.log("addSignatoriesToPdf > current last page size: ", {
-    width: pageWidth,
-    height: pageHeight,
-  });
+  DEBUG &&
+    console.log("addSignatoriesToPdf > current last page size: ", {
+      width: pageWidth,
+      height: pageHeight,
+    });
 
   let pdfPage = pdfDoc.addPage([pageWidth, pageHeight]);
 
   const pageContentRectangle = getPDFCoordsFromPage({
-    x: 0,
-    y: 0,
-    width: pageWidth,
-    height: pageHeight,
     margins: MARGIN,
     pdfPage,
   });
