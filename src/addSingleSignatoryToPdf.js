@@ -1,14 +1,6 @@
-const { StandardFonts } = require("pdf-lib");
-const fontkit = require("@pdf-lib/fontkit");
-
-const { loadFontFile } = require("./helpers/fs");
-const { COLOR } = require("./helpers/pdf");
-
-//----------------------------------------------------------------------------//
+const { COLOR, loadPdfFonts } = require("./helpers/pdf");
 
 const PADDING = 5;
-const fontSizeText = 20;
-const fontSizeInfo = 8;
 
 //----------------------------------------------------------------------------//
 
@@ -29,23 +21,21 @@ const addSingleSignatoryToPdf = async (pdfDoc) => {
 
   //--------------------------------------------------------------------------//
 
-  const fontBuffer = loadFontFile();
+  const {
+    fontText,
+    fontInfo,
 
-  let fontText;
-  if (fontBuffer) {
-    pdfDoc.registerFontkit(fontkit);
-    fontText = await pdfDoc.embedFont(fontBuffer);
-  } else {
-    fontText = await pdfDoc.embedFont(StandardFonts.CourierOblique);
-  }
-  const fontInfo = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    fontSizeText,
+    fontSizeInfo,
 
-  const textHeightAtDesiredFontSize = fontText.heightAtSize(fontSizeText);
+    textHeightAtDesiredFontSize,
+    infoHeightAtDesiredFontSize,
+  } = await loadPdfFonts(pdfDoc);
+
   const textWidthAtDesiredHeight = fontText.widthOfTextAtSize(
     text,
     fontSizeText
   );
-  const infoHeightAtDesiredFontSize = fontInfo.heightAtSize(fontSizeInfo);
 
   //--------------------------------------------------------------------------//
 
