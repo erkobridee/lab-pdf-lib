@@ -325,7 +325,13 @@ const addSomeSignatoriesToPdf = async (pdfDoc, onPage = 2, debug = false) => {
   DEBUG = debug;
 
   onPage = onPage - 1;
-  if (onPage < 0) onPage = 0;
+
+  const pageCount = pdfDoc.getPageCount();
+  if (onPage < 0) {
+    onPage = 0;
+  } else if (onPage >= pageCount) {
+    onPage = pageCount - 1;
+  }
 
   const pdfPage = pdfDoc.getPage(onPage);
 
