@@ -5,7 +5,15 @@ const { loadPdfFile, writePdfFile } = require("./helpers/fs");
 const { addPageTextCenterToPdf } = require("./addPageTextCenterToPdf");
 const { addSingleSignatoryToPdf } = require("./addSingleSignatoryToPdf");
 const { addSomeSignatoriesToPdf } = require("./addSomeSignatoriesToPdf");
-const { addSignatoriesToPdf } = require("./addSignatoriesToPdf");
+
+const {
+  addSignatoriesToPdf: addSignatoriesToPdfV1,
+} = require("./addSignatoriesToPdfV1");
+
+const {
+  addSignatoriesToPdf: addSignatoriesToPdfV2,
+} = require("./addSignatoriesToPdfV2");
+
 const {
   addSigWidgetPlaceholderToPdf,
 } = require("./addSigWidgetPlaceholderToPdf");
@@ -17,11 +25,12 @@ const {
     ignoreEncryption: true,
   });
 
+  pdfDoc = await addSigWidgetPlaceholderToPdf(pdfDoc); // adds on the first page
   pdfDoc = await addPageTextCenterToPdf(pdfDoc);
   pdfDoc = await addSingleSignatoryToPdf(pdfDoc);
   pdfDoc = await addSomeSignatoriesToPdf(pdfDoc, 2, false);
-  pdfDoc = await addSignatoriesToPdf(pdfDoc, false);
-  pdfDoc = await addSigWidgetPlaceholderToPdf(pdfDoc);
+  pdfDoc = await addSignatoriesToPdfV1(pdfDoc, false);
+  pdfDoc = await addSignatoriesToPdfV2(pdfDoc, true);
 
   const pdfDocBytes = await pdfDoc.save({ useObjectStreams: false });
   const pdfContentResult = Buffer.from(pdfDocBytes);
