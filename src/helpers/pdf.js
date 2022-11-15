@@ -9,12 +9,14 @@ const { roundUp } = require("./math");
 
 const FONT_SIZE_TEXT = 20;
 const FONT_SIZE_INFO = 8;
+const FONT_SIZE_HASH = 7;
 
 const loadPdfFonts = async (pdfDoc, options = {}) => {
   const {
     textFontName = FONT_NAME.PATRICK_HAND,
     fontSizeText = FONT_SIZE_TEXT,
     fontSizeInfo = FONT_SIZE_INFO,
+    fontSizeHash = FONT_SIZE_HASH,
   } = options;
 
   const fontBuffer = loadFontFile(textFontName);
@@ -26,24 +28,30 @@ const loadPdfFonts = async (pdfDoc, options = {}) => {
   } else {
     fontText = await pdfDoc.embedFont(StandardFonts.CourierOblique);
   }
-  const fontInfo = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const fontHelvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
   const textHeightAtDesiredFontSize = roundUp(
     fontText.heightAtSize(fontSizeText)
   );
   const infoHeightAtDesiredFontSize = roundUp(
-    fontInfo.heightAtSize(fontSizeInfo)
+    fontHelvetica.heightAtSize(fontSizeInfo)
+  );
+  const hashHeightAtDesiredFontSize = roundUp(
+    fontHelvetica.heightAtSize(fontSizeHash)
   );
 
   return {
     fontText,
-    fontInfo,
+    fontInfo: fontHelvetica,
+    fontHash: fontHelvetica,
 
     fontSizeText,
     fontSizeInfo,
+    fontSizeHash,
 
     textHeightAtDesiredFontSize,
     infoHeightAtDesiredFontSize,
+    hashHeightAtDesiredFontSize,
   };
 };
 
