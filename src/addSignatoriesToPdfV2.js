@@ -308,18 +308,23 @@ const renderSignatory = ({
 
   signatory,
 
+  showSizedHash = true,
+
   borderColor = COLOR.PASTEL_BLUE,
   bgColor = COLOR.WHITE_SMOKE,
   textColor = COLOR.BLACK,
+  textHashColor = COLOR.SLATE_GRAY,
 }) => {
-  const { x, y, width, height, name, uuid, shortId } = signatory;
+  const { x, y, width, height, name, uuid, shortId, hash } = signatory;
 
   const {
     fontText,
     fontInfo,
+    fontHash,
 
     fontSizeText,
     fontSizeInfo,
+    fontSizeHash,
 
     infoHeightAtDesiredFontSize,
   } = pdfFonts;
@@ -345,6 +350,30 @@ const renderSignatory = ({
   });
 
   paddings = getTopBottomLeftRightValues(paddings);
+
+  //--- @begin: sized hash text
+  if (showSizedHash) {
+    const sizedHash = `${hash.substring(0, 14)}...`.toUpperCase();
+    const sizedHashWidth = roundUp(
+      fontHash.widthOfTextAtSize(sizedHash, fontSizeHash)
+    );
+
+    const sizedHashX =
+      signatorySignatoryBGRectangle.x +
+      signatorySignatoryBGRectangle.width -
+      sizedHashWidth;
+    const sizedHashY =
+      signatorySignatoryBGRectangle.y - Math.floor(textGap / 2);
+
+    pdfPage.drawText(sizedHash, {
+      color: textHashColor,
+      size: fontSizeHash,
+      font: fontHash,
+      x: sizedHashX,
+      y: sizedHashY,
+    });
+  }
+  //--- @end: sized hash text
 
   const signatorySignatoryContentRectangle = getPDFCoordsInsideRectangle({
     left: 0,
@@ -411,6 +440,8 @@ const renderSignatories = ({
   margins = 10,
   paddings = 5,
   gap = 10,
+  columnGap = gap,
+  rowGap = gap,
   textGap = 5,
 
   borderColor = COLOR.SILVER,
@@ -455,91 +486,93 @@ const renderSignatories = ({
   const availableWidth = pageContentRectangle.width;
   const halfAvailableWidth = availableWidth / 2;
 
-  const toAdjustWidth = gap > 0 ? gap / 2 : 0;
+  const toAdjustWidth = columnGap > 0 ? columnGap / 2 : 0;
   const maxSignatureAvailableWidth = halfAvailableWidth - toAdjustWidth;
 
-  const rowHeight = signatoryTotalHeight + gap;
+  const rowHeight = signatoryTotalHeight + rowGap;
   const maxRowsCount = roundDown(availableHeight / rowHeight);
 
   let row = 0,
     x = 0;
 
-  const signatoriesComputed = signatories.map(({ name, uuid, shortId }) => {
-    const nameWidth =
-      roundUp(fontText.widthOfTextAtSize(name, fontSizeText)) + fontSizeText;
+  const signatoriesComputed = signatories.map(
+    ({ name, uuid, shortId, hash }) => {
+      const nameWidth =
+        roundUp(fontText.widthOfTextAtSize(name, fontSizeText)) + fontSizeText;
 
-    let largestWidth = nameWidth;
+      let largestWidth = nameWidth;
 
-    const uuidWidth = roundUp(fontInfo.widthOfTextAtSize(uuid, fontSizeInfo));
+      const uuidWidth = roundUp(fontInfo.widthOfTextAtSize(uuid, fontSizeInfo));
 
-    if (uuidWidth > largestWidth) largestWidth = uuidWidth;
+      if (uuidWidth > largestWidth) largestWidth = uuidWidth;
 
-    const shortIdWidth = roundUp(
-      fontInfo.widthOfTextAtSize(shortId, fontSizeInfo)
-    );
+      const shortIdWidth = roundUp(
+        fontInfo.widthOfTextAtSize(shortId, fontSizeInfo)
+      );
 
-    if (shortIdWidth > largestWidth) largestWidth = shortIdWidth;
+      if (shortIdWidth > largestWidth) largestWidth = shortIdWidth;
 
-    const totalWidth = paddings.left + largestWidth + paddings.right;
-    const width =
-      totalWidth < maxSignatureAvailableWidth
-        ? maxSignatureAvailableWidth
-        : totalWidth;
+      const totalWidth = paddings.left + largestWidth + paddings.right;
+      const width =
+        totalWidth < maxSignatureAvailableWidth
+          ? maxSignatureAvailableWidth
+          : totalWidth;
 
-    if (x + width > availableWidth) {
-      row++;
-      x = 0;
-    }
+      if (x + width > availableWidth) {
+        row++;
+        x = 0;
+      }
 
-    if (row >= maxRowsCount) {
-      row = 0;
-      pdfPage = addNewPage({
-        pdfDoc,
-        margins,
-        pageSize,
+      if (row >= maxRowsCount) {
+        row = 0;
+        pdfPage = addNewPage({
+          pdfDoc,
+          margins,
+          pageSize,
+          pageContentRectangle,
+          pageContentCoordsLimits,
+        }).pdfPage;
+      }
+
+      const y = rowHeight * row;
+
+      const computed = {
+        name,
+        uuid,
+        shortId,
+        hash,
+        width,
+        height: signatoryTotalHeight,
+        x,
+        y,
+        ...(DEBUG ? { nameWidth, uuidWidth, shortIdWidth, totalWidth } : {}),
+      };
+
+      renderSignatory({
+        pdfPage,
         pageContentRectangle,
-        pageContentCoordsLimits,
-      }).pdfPage;
+        pdfFonts,
+
+        signatory: computed,
+
+        paddings,
+        textGap,
+
+        borderColor,
+        bgColor,
+        textColor,
+      });
+
+      if (width > maxSignatureAvailableWidth) {
+        row++;
+        x = 0;
+      } else {
+        x += halfAvailableWidth + toAdjustWidth;
+      }
+
+      return computed;
     }
-
-    const y = rowHeight * row;
-
-    const computed = {
-      name,
-      uuid,
-      shortId,
-      width,
-      height: signatoryTotalHeight,
-      x,
-      y,
-      ...(DEBUG ? { nameWidth, uuidWidth, shortIdWidth, totalWidth } : {}),
-    };
-
-    renderSignatory({
-      pdfPage,
-      pageContentRectangle,
-      pdfFonts,
-
-      signatory: computed,
-
-      paddings,
-      textGap,
-
-      borderColor,
-      bgColor,
-      textColor,
-    });
-
-    if (width > maxSignatureAvailableWidth) {
-      row++;
-      x = 0;
-    } else {
-      const extra = gap > 0 ? gap / 2 : 0;
-      x += halfAvailableWidth + extra;
-    }
-
-    return computed;
-  });
+  );
 
   // @end: compute visual signature position
   //--------------------------------------------------------------------------//
@@ -594,7 +627,13 @@ const addSignatoriesToPdf = async (pdfDoc, debug = false) => {
 
   const pdfFonts = await loadPdfFonts(pdfDoc);
 
-  renderSignatories({ pdfDoc, pdfFonts, signatories });
+  renderSignatories({
+    pdfDoc,
+    pdfFonts,
+    signatories,
+    margins: 20,
+    columnGap: 15,
+  });
 
   return pdfDoc;
 };
