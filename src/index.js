@@ -11,6 +11,8 @@ const {
   addSigWidgetPlaceholderToPdf,
 } = require("./addSigWidgetPlaceholderToPdf");
 
+const DEBUG = false;
+
 (async () => {
   const pdfInputFile = loadPdfFile();
 
@@ -19,10 +21,14 @@ const {
   });
 
   pdfDoc = await addSigWidgetPlaceholderToPdf(pdfDoc); // adds on the first page
-  pdfDoc = await addPageTextCenterToPdf(pdfDoc);
-  pdfDoc = await addSingleSignatoryToPdf(pdfDoc);
-  pdfDoc = await addSomeSignatoriesToPdf(pdfDoc, 2, false);
-  pdfDoc = await addSignatoriesToPdf(pdfDoc, false);
+
+  if (DEBUG) {
+    pdfDoc = await addPageTextCenterToPdf(pdfDoc);
+    pdfDoc = await addSingleSignatoryToPdf(pdfDoc);
+    pdfDoc = await addSomeSignatoriesToPdf(pdfDoc, 2, DEBUG);
+  }
+
+  pdfDoc = await addSignatoriesToPdf(pdfDoc, DEBUG);
 
   const pdfDocBytes = await pdfDoc.save({ useObjectStreams: false });
   const pdfContentResult = Buffer.from(pdfDocBytes);
