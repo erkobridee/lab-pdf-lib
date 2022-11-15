@@ -119,13 +119,24 @@ const hex2pdfRGB = (hexString) => {
 const COLOR = {
   BLACK: rgb(0, 0, 0),
   WHITE: rgb(1, 1, 1),
+  FAFAFA: pdfRGB(250, 250, 250),
   RED: pdfRGB(255, 0, 0),
   GREEN: pdfRGB(0, 255, 0),
   BLUE: pdfRGB(0, 0, 255),
   AIR_FORCE_BLUE: pdfRGB(93, 138, 168),
   GAINSBORO: pdfRGB(220, 220, 220),
+  MUNSELL: pdfRGB(242, 243, 244),
+  PASTEL_BLUE: pdfRGB(174, 198, 207),
+  PASTEL_GRAY: pdfRGB(207, 207, 196),
+  PAYNE_GREY: pdfRGB(83, 103, 120),
+  SLATE_GRAY: pdfRGB(112, 128, 144),
+  SILVER: pdfRGB(192, 192, 192),
+  SNOW: pdfRGB(255, 250, 250),
+  FLORAL_WHITE: pdfRGB(255, 250, 240),
   GHOST_WHITE: pdfRGB(248, 248, 255),
   NAVAJO_WHITE: pdfRGB(255, 222, 173),
+  WHITE_SMOKE: pdfRGB(245, 245, 245),
+  LIGHT_BROWN: pdfRGB(181, 101, 29),
 };
 
 //----------------------------------------------------------------------------//
@@ -434,6 +445,11 @@ const addNewPdfPage = ({ pdfDoc, size }) => {
 
 //----------------------------------------------------------------------------//
 
+const centralizeOnSize = (onSize, contentSize) =>
+  Math.ceil(onSize / 2) - Math.ceil(contentSize / 2);
+
+//----------------------------------------------------------------------------//
+
 module.exports = {
   loadPdfFonts,
   hex2rgb,
@@ -446,4 +462,5 @@ module.exports = {
   getPDFCoordsInsideRectangle,
   getLastPdfPage,
   addNewPdfPage,
+  centralizeOnSize,
 };
