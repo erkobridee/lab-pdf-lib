@@ -232,7 +232,7 @@ const calculateSignaturesSealPosition = ({
   width = 315,
   height = 140,
 
-  signatoryComputedCoods,
+  signatoryComputedCoords,
   pageContentCoordsLimits,
   pageSize,
 }) => {
@@ -244,7 +244,7 @@ const calculateSignaturesSealPosition = ({
     yTop;
 
   x = centralX;
-  y = signatoryComputedCoods.yBottom - (rowGap + rowHeight + height);
+  y = signatoryComputedCoords.yBottom - (rowGap + rowHeight + height);
 
   if (y > pageContentCoordsLimits.yBottom) {
     return {
@@ -259,8 +259,8 @@ const calculateSignaturesSealPosition = ({
   yTop = y + height;
 
   if (
-    signatoryComputedCoods.xRight >= x &&
-    yTop >= signatoryComputedCoods.yBottom
+    signatoryComputedCoords.xRight >= x &&
+    yTop >= signatoryComputedCoords.yBottom
   ) {
     x = centralX;
     y = pageContentCoordsLimits.yTop - (rowHeight + height);
@@ -304,7 +304,7 @@ const addSignaturesSealPlaceholder = ({
 }) => {
   const signatoryComputed = signatoriesComputed[signatoriesComputed.length - 1];
 
-  const signatoryComputedCoods = getPDFCoordsLimits({
+  const signatoryComputedCoords = getPDFCoordsLimits({
     rectangle: signatoryComputed,
   });
 
@@ -315,7 +315,7 @@ const addSignaturesSealPlaceholder = ({
     width,
     height,
 
-    signatoryComputedCoods,
+    signatoryComputedCoords,
     pageContentCoordsLimits,
     pageSize,
   });
@@ -340,7 +340,7 @@ const addSignaturesSealPlaceholder = ({
   DEBUG &&
     console.log("addSignatoriesToPdf > addSignaturesSealPlaceholder: ", {
       signatoryComputed,
-      signatoryComputedCoods,
+      signatoryComputedCoods: signatoryComputedCoords,
       sealRectangle,
       shouldAddPage: sealPosition.shouldAddPage,
     });
