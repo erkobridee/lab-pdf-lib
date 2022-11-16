@@ -225,6 +225,59 @@ const visualizeSignaturesSealPlaceholder = ({
   });
 };
 
+const calculateSignaturesSealPosition = ({
+  rowGap = 0,
+  rowHeight = 0,
+
+  width = 315,
+  height = 140,
+
+  signatoryComputedCoods,
+  pageContentCoordsLimits,
+  pageSize,
+}) => {
+  const centralX = centralizeOnSize(pageSize.width, width);
+
+  let shouldAddPage = false,
+    x,
+    y,
+    yTop;
+
+  x = centralX;
+  y = signatoryComputedCoods.yBottom - (rowGap + rowHeight + height);
+
+  if (y > pageContentCoordsLimits.yBottom) {
+    return {
+      x,
+      y,
+      shouldAddPage,
+    };
+  }
+
+  x = pageContentCoordsLimits.xRight - width;
+  y = pageContentCoordsLimits.yBottom;
+  yTop = y + height;
+
+  if (
+    signatoryComputedCoods.xRight >= x &&
+    yTop >= signatoryComputedCoods.yBottom
+  ) {
+    x = centralX;
+    y = pageContentCoordsLimits.yTop - (rowHeight + height);
+    return {
+      x,
+      y,
+      shouldAddPage: true,
+    };
+  }
+
+  return {
+    x,
+    y,
+    shouldAddPage,
+  };
+};
+
 /**
  * checks the last computed signature position to check if there's enough space
  * to place the signatures seal placeholder on the same page, otherwise
@@ -244,6 +297,7 @@ const addSignaturesSealPlaceholder = ({
 
   // used when needs to add the placeholder on a new page as top value
   rowHeight,
+  rowGap,
 
   width = 315,
   height = 140,
@@ -254,17 +308,19 @@ const addSignaturesSealPlaceholder = ({
     rectangle: signatoryComputed,
   });
 
-  let sealX = pageContentCoordsLimits.xRight - width,
-    sealY = pageContentCoordsLimits.yBottom,
-    sealYTop = sealY + height;
+  const sealPosition = calculateSignaturesSealPosition({
+    rowGap,
+    rowHeight,
 
-  if (
-    signatoryComputedCoods.xRight >= sealX &&
-    sealYTop >= signatoryComputedCoods.yBottom
-  ) {
-    sealY = pageContentCoordsLimits.yTop - (rowHeight + height);
-    sealX = centralizeOnSize(pageSize.width, width);
+    width,
+    height,
 
+    signatoryComputedCoods,
+    pageContentCoordsLimits,
+    pageSize,
+  });
+
+  if (sealPosition.shouldAddPage) {
     pdfPage = addNewPage({
       pdfDoc,
       margins,
@@ -275,8 +331,8 @@ const addSignaturesSealPlaceholder = ({
   }
 
   const sealRectangle = {
-    x: sealX,
-    y: sealY,
+    x: sealPosition.x,
+    y: sealPosition.y,
     width,
     height,
   };
@@ -286,7 +342,7 @@ const addSignaturesSealPlaceholder = ({
       signatoryComputed,
       signatoryComputedCoods,
       sealRectangle,
-      sealYTop,
+      shouldAddPage: sealPosition.shouldAddPage,
     });
 
   visualizeSignaturesSealPlaceholder({
