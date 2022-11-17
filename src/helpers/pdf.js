@@ -295,7 +295,7 @@ const getPDFCoordsFromPage = ({
   );
 
   x = (x ?? 0) + left;
-  y = (y ?? 0) + top;
+  y = (y ?? 0) + bottom;
 
   width = (width ?? pageWidth) * scale - (left + right);
   height = (height ?? pageHeight) * scale - (top + bottom);
