@@ -7,7 +7,7 @@ const { roundUp } = require("./math");
 
 //----------------------------------------------------------------------------//
 
-const FONT_SIZE_TEXT = 20;
+const FONT_SIZE_TEXT = 18;
 const FONT_SIZE_INFO = 8;
 const FONT_SIZE_HASH = 7;
 
@@ -462,6 +462,7 @@ module.exports = {
   loadPdfFonts,
   hex2rgb,
   hex2pdfRGB,
+  FONT_NAME,
   COLOR,
   getTopBottomLeftRightValues,
   getPDFCoordsLimits,
