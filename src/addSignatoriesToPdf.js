@@ -1,6 +1,7 @@
 const { generateSignatories } = require("./helpers/signatories");
 const { roundUp, roundDown } = require("./helpers/math");
 const {
+  FONT_NAME,
   COLOR,
   loadPdfFonts,
   getPDFCoordsLimits,
@@ -681,7 +682,9 @@ const addSignatoriesToPdf = async (pdfDoc, debug = false) => {
 
   const signatories = generateSignatories(2, 30);
 
-  const pdfFonts = await loadPdfFonts(pdfDoc);
+  const pdfFonts = await loadPdfFonts(pdfDoc, {
+    textFontName: FONT_NAME.ARCHITECTS_DAUGHTER,
+  });
 
   renderSignatories({
     pdfDoc,
