@@ -4,10 +4,8 @@ const { createHash } = require("node:crypto");
 
 const { isTypeOfObject } = require("./is");
 
-const hashSha256 = createHash("sha256");
-
 const sha256 = (content) =>
-  hashSha256
+  createHash("sha256")
     .update(isTypeOfObject(content) ? JSON.stringify(content) : content)
     .digest("hex");
 
