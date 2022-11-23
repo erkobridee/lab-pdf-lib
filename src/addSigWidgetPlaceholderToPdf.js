@@ -22,8 +22,10 @@ const addSigWidgetPlaceholderToPdf = async (pdfDoc) => {
   const bottom = 10,
     right = 10,
     scale = 1,
-    width = 250,
-    height = 100,
+    // width = 250,
+    // height = 100,
+    width = 240, // 480,
+    height = 105, // 210,
     borderWidth = 1,
     color = rgb(204 / 255, 204 / 255, 204 / 255);
 

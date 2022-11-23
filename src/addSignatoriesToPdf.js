@@ -176,6 +176,21 @@ const addNewPage = ({
 
 //----------------------------------------------------------------------------//
 
+// const DEFAULT_SEAL_SIZE = {
+//   width: 315,
+//   height: 140,
+// };
+
+// const DEFAULT_SEAL_SIZE = {
+//   width: 480,
+//   height: 210,
+// };
+
+const DEFAULT_SEAL_SIZE = {
+  width: 240,
+  height: 105,
+};
+
 const visualizeSignaturesSealPlaceholder = ({
   pdfPage,
   pdfFonts,
@@ -230,8 +245,8 @@ const calculateSignaturesSealPosition = ({
   rowGap = 0,
   rowHeight = 0,
 
-  width = 315,
-  height = 140,
+  width = DEFAULT_SEAL_SIZE.width,
+  height = DEFAULT_SEAL_SIZE.height,
 
   signatoryComputedCoords,
   pageContentCoordsLimits,
@@ -300,8 +315,8 @@ const addSignaturesSealPlaceholder = ({
   rowHeight,
   rowGap,
 
-  width = 315,
-  height = 140,
+  width = DEFAULT_SEAL_SIZE.width,
+  height = DEFAULT_SEAL_SIZE.height,
 }) => {
   const signatoryComputed = signatoriesComputed[signatoriesComputed.length - 1];
 
