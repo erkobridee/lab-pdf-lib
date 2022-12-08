@@ -4,20 +4,14 @@ export interface ISignatureRenderPosition {
   x: number;
   y: number;
 
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
 
   /** default scale value is 1 */
   scale?: number;
 }
 
-export const SignatureRenderPositionRequiredAttributes = [
-  "page",
-  "x",
-  "y",
-  "width",
-  "height",
-];
+export const SignatureRenderPositionRequiredAttributes = ["page", "x", "y"];
 
 export interface ISignatureTextSize {
   /** signature default font-size is 20 */
