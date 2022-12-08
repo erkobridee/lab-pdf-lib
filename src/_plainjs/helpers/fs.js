@@ -3,7 +3,7 @@ const path = require("path");
 
 //----------------------------------------------------------------------------//
 
-const ROOT_DIR = path.join(__dirname, "..", "..");
+const ROOT_DIR = path.join(__dirname, "..", "..", "..");
 
 const loadFile = (filePath) => {
   try {
@@ -57,7 +57,10 @@ const loadFontFile = (fontName = FONT_NAME.PATRICK_HAND) =>
 const PDF_INPUT_FILE = path.join(ROOT_DIR, `${FILES_DIR}/input/source.pdf`);
 const loadPdfFile = () => loadFile(PDF_INPUT_FILE);
 
-const PDF_OUTPUT_FILE = path.join(ROOT_DIR, `${FILES_DIR}/output/result.pdf`);
+const PDF_OUTPUT_FILE = path.join(
+  ROOT_DIR,
+  `${FILES_DIR}/output/result_v1.pdf`
+);
 const writePdfFile = (fileContent) => writeFile(PDF_OUTPUT_FILE, fileContent);
 
 // console.log({
