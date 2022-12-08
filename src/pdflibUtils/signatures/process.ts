@@ -29,7 +29,7 @@ export const processSignatures = async ({
     sealRenderPosition,
 
     renderSignatureConfig: {
-      displayLocation: true,
+      displayLocation: false,
     },
   });
 
