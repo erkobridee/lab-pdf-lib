@@ -34,11 +34,13 @@ const debugHelper = ({
 }: IDebugHelperOptions) => {
   if (!shouldDebug(DEBUG_KEY)) return;
 
+  /*
   console.log("pdflibUtils/signatures/helpers/pages -> debugHelper", {
     pageContentRectangle,
     pageContentCoordsLimits,
     pageMargins,
   });
+  */
 
   const { margins, verticalGuideLine, horizontalGuideLines } =
     getDebugRenderConfig(DEBUG_KEY);
@@ -66,16 +68,17 @@ const debugHelper = ({
   //---===---//
   // horizontal lines
 
+  const distance = 4;
   const middleX = xRight / 2 + pageMargins / 2;
 
-  let yLine = yTop - 1;
+  let yLine = yTop + distance;
   pdfPage.drawLine({
     ...horizontalGuideLines,
     start: { x: xLeft, y: yLine },
     end: { x: middleX, y: yLine },
   });
 
-  yLine = yTop + 1;
+  yLine = yBottom - distance;
   pdfPage.drawLine({
     ...horizontalGuideLines,
     start: { x: middleX, y: yLine },
