@@ -14,7 +14,7 @@ export const PDF_LIB_UTILS_RENDER_CONFIG = {
     },
     horizontalGuideLines: {
       thickness: 1,
-      color: COLOR.BLUE,
+      color: COLOR.RED,
     },
   },
 
