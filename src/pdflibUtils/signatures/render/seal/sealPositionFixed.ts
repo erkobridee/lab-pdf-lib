@@ -2,6 +2,8 @@ import type { PDFDocument } from "pdf-lib";
 
 import type { ISignatureRenderPosition } from "@/entities";
 
+import { ISignatureFonts } from "@/pdflibUtils";
+
 //---//
 
 import {
@@ -16,12 +18,14 @@ import {
 interface ISealPositionFixedOptions {
   pdfDoc: PDFDocument;
   acroformId: string;
+  fonts: ISignatureFonts;
   renderPosition: ISignatureRenderPosition;
 }
 
 export const sealPositionFixed = ({
   pdfDoc,
   acroformId,
+  fonts,
   renderPosition,
 }: ISealPositionFixedOptions) => {
   const { page, x, y, width, height, scale = 1 } = renderPosition;
@@ -40,6 +44,7 @@ export const sealPositionFixed = ({
     pdfDoc,
     pdfPage,
     rectangle,
+    fonts,
   });
 };
 

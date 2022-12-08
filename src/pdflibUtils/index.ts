@@ -7,6 +7,7 @@
     https://github.com/Hopding/fontkit
 */
 
+export * from "./debugConfigs";
 export * from "./colors";
 export * from "./pdfFile";
 export * from "./pages";

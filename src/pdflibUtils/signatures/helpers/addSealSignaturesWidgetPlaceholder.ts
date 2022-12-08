@@ -1,4 +1,9 @@
 import type { PDFDocument, PDFPage } from "pdf-lib";
+
+import type { ISignatureFonts, IPDFRectangle } from "@/pdflibUtils";
+
+//---===---//
+
 import {
   PDFName,
   PDFDict,
@@ -10,7 +15,70 @@ import {
   drawRectangle,
 } from "pdf-lib";
 
-import { IPDFRectangle, getPDFCoordsLimits } from "@/pdflibUtils";
+import {
+  COLOR,
+  shouldDebug,
+  getDebugRenderConfig,
+  getPDFCoordsLimits,
+  getPDFCoordsInsideRectangle,
+} from "@/pdflibUtils";
+
+import * as math from "@/utils/math";
+
+//----------------------------------------------------------------------------//
+
+interface IDebugHelperOptions {
+  pdfPage: PDFPage;
+  rectangle: IPDFRectangle;
+  fonts: ISignatureFonts;
+}
+
+const DEBUG_KEY = "rendeSealRectangle";
+const debugHelper = ({ pdfPage, rectangle, fonts }: IDebugHelperOptions) => {
+  if (!shouldDebug(DEBUG_KEY)) return;
+
+  pdfPage.drawRectangle({
+    ...rectangle,
+    ...getDebugRenderConfig(DEBUG_KEY),
+  });
+
+  //---===---//
+
+  const { infoFont } = fonts;
+  const fontSize = 10;
+
+  const infoHeightAtDesiredFontSize = math.roundUp(
+    infoFont.heightAtSize(fontSize)
+  );
+
+  const textMessage = "Seal placeholder";
+  const textMessageWidth = math.roundUp(
+    infoFont.widthOfTextAtSize(textMessage, fontSize)
+  );
+  const textMessageX = math.geometry.centralizeRectangleOnSize(
+    rectangle.width,
+    textMessageWidth
+  );
+  const textMessageY = math.geometry.centralizeRectangleOnSize(
+    rectangle.height,
+    infoHeightAtDesiredFontSize
+  );
+
+  pdfPage.drawText(textMessage, {
+    color: COLOR.BLACK,
+    size: fontSize,
+    font: infoFont,
+    ...getPDFCoordsInsideRectangle({
+      x: textMessageX,
+      y: textMessageY,
+      width: textMessageWidth,
+      height: infoHeightAtDesiredFontSize,
+      rectangle,
+    }),
+  });
+};
+
+//----------------------------------------------------------------------------//
 
 interface IAddSealSignaturesWidgetPlaceholderOptions {
   /** needed to access the AcroForm and also the pdf context object */
@@ -21,6 +89,8 @@ interface IAddSealSignaturesWidgetPlaceholderOptions {
   acroformId: string;
   /** position of the widget on the page */
   rectangle: IPDFRectangle;
+
+  fonts: ISignatureFonts;
 }
 
 export const addSealSignaturesWidgetPlaceholder = ({
@@ -28,8 +98,13 @@ export const addSealSignaturesWidgetPlaceholder = ({
   pdfPage,
   acroformId,
   rectangle,
+  fonts,
 }: IAddSealSignaturesWidgetPlaceholderOptions) => {
   const { xLeft, yBottom, xRight, yTop } = getPDFCoordsLimits({ rectangle });
+
+  //--------------------------------------------------------------------------//
+
+  debugHelper({ pdfPage, rectangle, fonts });
 
   //--------------------------------------------------------------------------//
 

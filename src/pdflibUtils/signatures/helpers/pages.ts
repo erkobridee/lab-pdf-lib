@@ -13,10 +13,73 @@ import type { IPDFRectangle } from "@/pdflibUtils";
 import { isUndefined } from "@/utils/data";
 
 import {
+  shouldDebug,
+  getDebugRenderConfig,
   addNewPdfPage,
   getPDFCoordsFromPage,
   getPDFCoordsLimits,
 } from "@/pdflibUtils";
+
+//----------------------------------------------------------------------------//
+
+interface IDebugHelperOptions {
+  pdfPage: PDFPage;
+  pageContentRectangle: IPDFRectangle;
+  pageContentCoordsLimits: IRectangleCoordsLimits;
+  pageMargins: number;
+}
+
+const DEBUG_KEY = "renderPage";
+const debugHelper = ({
+  pdfPage,
+  pageContentRectangle,
+  pageContentCoordsLimits,
+  pageMargins,
+}: IDebugHelperOptions) => {
+  if (!shouldDebug(DEBUG_KEY)) return;
+
+  const { margins, verticalGuideLine, horizontalGuideLines } =
+    getDebugRenderConfig(DEBUG_KEY);
+
+  pdfPage.drawRectangle({
+    ...pageContentRectangle,
+
+    ...margins,
+  });
+
+  //---===---//
+
+  const { xLeft, xRight, yTop, yBottom } = pageContentCoordsLimits;
+
+  //---===---//
+  // vertical lines
+
+  const x = pageContentRectangle.width / 2 + pageMargins;
+  pdfPage.drawLine({
+    ...verticalGuideLine,
+    end: { x, y: yTop },
+    start: { x, y: yBottom },
+  });
+
+  //---===---//
+  // horizontal lines
+
+  const middleX = xRight / 2 + pageMargins / 2;
+
+  let yLine = yTop - 1;
+  pdfPage.drawLine({
+    ...horizontalGuideLines,
+    start: { x: xLeft, y: yLine },
+    end: { x: middleX, y: yLine },
+  });
+
+  yLine = yTop + 1;
+  pdfPage.drawLine({
+    ...horizontalGuideLines,
+    start: { x: middleX, y: yLine },
+    end: { x: xRight, y: yLine },
+  });
+};
 
 //----------------------------------------------------------------------------//
 
@@ -71,11 +134,18 @@ export const addNewPage = ({
     });
   }
 
+  debugHelper({
+    pdfPage,
+    pageContentRectangle,
+    pageContentCoordsLimits,
+    pageMargins: pageMargins as number,
+  });
+
   return {
     pdfPage,
-    pageSize: pageSize as ISize,
-    pageContentRectangle: pageContentRectangle as IPDFRectangle,
-    pageContentCoordsLimits: pageContentCoordsLimits as IRectangleCoordsLimits,
+    pageSize,
+    pageContentRectangle,
+    pageContentCoordsLimits,
     pageMargins,
   };
 };

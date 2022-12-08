@@ -3,6 +3,7 @@ import type { PDFDocument } from "pdf-lib";
 import type { ISignatureRenderPosition } from "@/entities";
 
 import type { IRenderSignaturesWithoutPositionResult } from "@/pdflibUtils/signatures/render/renderSignaturesWithoutPosition";
+import { ISignatureFonts } from "@/pdflibUtils";
 
 //---//
 
@@ -23,6 +24,8 @@ interface IRenderSignaturesSealOptions {
   sealRenderPosition: TSealRenderPosition;
 
   signaturesWithoutPosition: IRenderSignaturesWithoutPositionResult;
+
+  fonts: ISignatureFonts;
 }
 
 export const renderSignaturesSeal = ({
@@ -32,6 +35,8 @@ export const renderSignaturesSeal = ({
   sealRenderPosition,
 
   signaturesWithoutPosition,
+
+  fonts,
 }: IRenderSignaturesSealOptions) => {
   if (acroformId === "") return false;
 
@@ -42,7 +47,7 @@ export const renderSignaturesSeal = ({
     )
   ) {
     const renderPosition = sealRenderPosition as ISignatureRenderPosition;
-    sealPositionFixed({ pdfDoc, renderPosition, acroformId });
+    sealPositionFixed({ pdfDoc, renderPosition, acroformId, fonts });
 
     return true;
   }
@@ -55,6 +60,8 @@ export const renderSignaturesSeal = ({
     sealSize,
 
     signaturesWithoutPosition,
+
+    fonts,
   });
 
   return true;

@@ -1,3 +1,7 @@
+import type { ISignatureFonts } from "@/pdflibUtils/signatures/helpers";
+
+//---===---//
+
 import { addSealSignaturesWidgetPlaceholder } from "@/pdflibUtils/signatures/helpers";
 
 import {
@@ -9,11 +13,15 @@ import {
 
 interface ISealPositionDynamicOptions extends ISealCalculatePositionOptions {
   acroformId: string;
+
+  fonts: ISignatureFonts;
 }
 
 export const sealPositionDynamic = ({
   pdfDoc,
   acroformId,
+
+  fonts,
 
   sealSize,
   signaturesWithoutPosition,
@@ -29,6 +37,7 @@ export const sealPositionDynamic = ({
     pdfPage,
     acroformId,
     rectangle: { x, y, width, height },
+    fonts,
   });
 };
 

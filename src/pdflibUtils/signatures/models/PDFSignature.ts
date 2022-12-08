@@ -13,6 +13,8 @@ import {
 } from "@/utils/math/geometry";
 
 import {
+  shouldDebug,
+  getDebugRenderConfig,
   COLOR,
   getRGB,
   getPDFCoordsInsideRectangle,
@@ -366,9 +368,15 @@ export class PDFSignature extends PDFSignatureData implements IPDFSignature {
   private drawBackground({ pdfPage, contentRectangle }: IDrawOptions) {
     const { backgroundColor } = this.renderConfig;
 
+    const DEBUG_KEY = "renderSignature";
+    const extraConfig = shouldDebug(DEBUG_KEY)
+      ? getDebugRenderConfig(DEBUG_KEY)
+      : {};
+
     pdfPage.drawRectangle({
       color: backgroundColor,
       ...contentRectangle,
+      ...extraConfig,
     });
   }
 
@@ -406,6 +414,16 @@ export class PDFSignature extends PDFSignatureData implements IPDFSignature {
       font: infoFont,
       size: infoFontSize,
     };
+
+    //------------------------------------------------------------------------//
+
+    const DEBUG_KEY = "renderSignatureContent";
+    if (shouldDebug(DEBUG_KEY)) {
+      pdfPage.drawRectangle({
+        ...contentRectangle,
+        ...getDebugRenderConfig(DEBUG_KEY),
+      });
+    }
 
     //------------------------------------------------------------------------//
     // @begin: location line
