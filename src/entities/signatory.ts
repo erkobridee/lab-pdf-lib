@@ -20,7 +20,7 @@ export interface Signatory {
 
 //----------------------------------------------------------------------------//
 
-const buildSignatory = (nameSize?: number): Signatory => {
+export const buildSignatory = (nameSize?: number): Signatory => {
   const fullName = getRandomName(nameSize);
   const signedLocation = getRandomCityName();
   const days = getRandomInt(0, 5);
