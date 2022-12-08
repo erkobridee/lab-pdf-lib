@@ -56,7 +56,8 @@ export const renderSignaturesWithoutPosition = ({
   const signatureTotalHeight = signatureHeights.total;
 
   const { contentColumnsGap, contentRowsGap } = pageConfig;
-  const { pageContentCoordsLimits, pageContentRectangle } = signaturesPage;
+  const { pdfPage, pageContentCoordsLimits, pageContentRectangle } =
+    signaturesPage;
 
   const availableHeight =
     pageContentCoordsLimits.yTop - pageContentCoordsLimits.yBottom;
@@ -69,6 +70,22 @@ export const renderSignaturesWithoutPosition = ({
 
   signaturesRowHeight = signatureTotalHeight + contentRowsGap;
   const maxRowsCount = roundDown(availableHeight / signaturesRowHeight);
+
+  /*
+  console.log("pdfibUtils/signatures/render/renderSignaturesWithoutPosition", {
+    signatureHeights,
+    contentColumnsGap,
+    contentRowsGap,
+    pageContentCoordsLimits,
+    pageContentRectangle,
+    availableHeight,
+    availableWidth,
+    halfAvailableWidth,
+    toAdjustWidth,
+    signaturesRowHeight,
+    maxRowsCount,
+  });
+  */
 
   //--------------------------------------------------------------------------//
 
@@ -116,8 +133,8 @@ export const renderSignaturesWithoutPosition = ({
       pdfSignature.updatePoint({ x, y: signaturesRowHeight * row });
 
       pdfSignature.draw({
-        pdfPage: signaturesPage.pdfPage,
-        contentRectangle: signaturesPage.pageContentRectangle,
+        pdfPage,
+        contentRectangle: pageContentRectangle,
       });
 
       if (pdfSignatureWidth > maxSignatureAvailableWidth) {
@@ -130,6 +147,8 @@ export const renderSignaturesWithoutPosition = ({
       return pdfSignature;
     }
   );
+
+  // console.log({ pdfSignatures });
 
   //--------------------------------------------------------------------------//
 
