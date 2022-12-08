@@ -51,3 +51,7 @@
 - [TypeScript: TSConfig Option: paths](https://www.typescriptlang.org/tsconfig#paths)
 
 - [How to set an absolute path in TypeScript | Towards the Cloud](https://towardsthecloud.com/set-absolute-path-typescript) - 2022/11/14
+
+## Another references
+
+- [[GitHub] bcoe/c8](https://github.com/bcoe/c8) - output coverage reports using Node.js' built in coverage
