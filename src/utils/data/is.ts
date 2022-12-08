@@ -27,9 +27,7 @@ export const isSymbol = <T = unknown>(argument: T) =>
   typeof argument === TYPE_OF.SYMBOL;
 
 export const isNumber = <T = unknown>(argument: T) =>
-  typeof argument === TYPE_OF.NUMBER &&
-  !isNaN(argument as unknown as number) &&
-  !isFinite(argument as unknown as number);
+  typeof argument === TYPE_OF.NUMBER;
 
 export const isString = <T = unknown>(argument: T) =>
   typeof argument === TYPE_OF.STRING;
