@@ -506,8 +506,9 @@ export class PDFSignature extends PDFSignatureData implements IPDFSignature {
 
   //--------------------------------------------------------------------------//
 
-  updatePoint(point: IPoint) {
-    this.updatePointToPDFCoords(point);
+  updatePoint({ x, y }: IPoint) {
+    this.x = x;
+    this.y = y;
   }
 
   getData() {
