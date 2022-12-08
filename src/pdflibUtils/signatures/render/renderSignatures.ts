@@ -87,11 +87,16 @@ export const renderSignatures = async ({
     ...(renderSignatureConfig ? renderSignatureConfig : {}),
   });
 
+  const signatureHeights = PDFSignature.calculateHeight({ renderConfig });
+  const signatureTotalHeight = signatureHeights.total;
+  const signaturesRowHeight = signatureTotalHeight + pageContentRowsGap;
+
   if (withPosition.length > 0) {
     renderSignaturesWithPosition({
       pdfDoc,
       renderConfig,
       signatories: withPosition,
+      signatureTotalHeight,
     });
   }
 
@@ -106,7 +111,7 @@ export const renderSignatures = async ({
   let signaturesWithoutPosition: IRenderSignaturesWithoutPositionResult = {
     signaturesPage: undefined,
     pageConfig,
-    signaturesRowHeight: 0,
+    signaturesRowHeight,
     pdfSignatures: [],
   };
 
@@ -116,6 +121,8 @@ export const renderSignatures = async ({
       pageConfig,
       renderConfig,
       signatories: withoutPosition,
+      signatureTotalHeight,
+      signaturesRowHeight,
     });
   }
 

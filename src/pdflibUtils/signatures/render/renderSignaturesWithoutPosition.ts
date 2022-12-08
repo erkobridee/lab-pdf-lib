@@ -22,6 +22,8 @@ interface IRenderSignaturesWithoutPositionOptions {
   pageConfig: IPageConfig;
   renderConfig: IPDFSignatureRenderConfig;
   signatories: Signatory[];
+  signatureTotalHeight: number;
+  signaturesRowHeight: number;
 }
 
 export interface IRenderSignaturesWithoutPositionResult {
@@ -36,9 +38,10 @@ export const renderSignaturesWithoutPosition = ({
   pageConfig,
   renderConfig,
   signatories,
+  signatureTotalHeight,
+  signaturesRowHeight,
 }: IRenderSignaturesWithoutPositionOptions): IRenderSignaturesWithoutPositionResult => {
   let signaturesPage: ISignaturesPage = addNewPage({ pdfDoc }),
-    signaturesRowHeight = 0,
     pdfSignatures: IPDFSignature[] = [];
 
   if (signatories.length === 0) {
@@ -51,9 +54,6 @@ export const renderSignaturesWithoutPosition = ({
   }
 
   //--------------------------------------------------------------------------//
-
-  const signatureHeights = PDFSignature.calculateHeight({ renderConfig });
-  const signatureTotalHeight = signatureHeights.total;
 
   const { contentColumnsGap, contentRowsGap } = pageConfig;
   const { pdfPage, pageContentCoordsLimits, pageContentRectangle } =
@@ -68,24 +68,7 @@ export const renderSignaturesWithoutPosition = ({
   const toAdjustWidth = contentColumnsGap > 0 ? contentRowsGap / 2 : 0;
   const maxSignatureAvailableWidth = halfAvailableWidth - toAdjustWidth;
 
-  signaturesRowHeight = signatureTotalHeight + contentRowsGap;
   const maxRowsCount = roundDown(availableHeight / signaturesRowHeight);
-
-  /*
-  console.log("pdfibUtils/signatures/render/renderSignaturesWithoutPosition", {
-    signatureHeights,
-    contentColumnsGap,
-    contentRowsGap,
-    pageContentCoordsLimits,
-    pageContentRectangle,
-    availableHeight,
-    availableWidth,
-    halfAvailableWidth,
-    toAdjustWidth,
-    signaturesRowHeight,
-    maxRowsCount,
-  });
-  */
 
   //--------------------------------------------------------------------------//
 

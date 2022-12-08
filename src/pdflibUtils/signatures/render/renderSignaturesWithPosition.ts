@@ -25,12 +25,15 @@ interface IRenderSignaturesWithPositionOptions {
   renderConfig: IPDFSignatureRenderConfig;
 
   signatories: Signatory[];
+
+  signatureTotalHeight: number;
 }
 
 export const renderSignaturesWithPosition = ({
   pdfDoc,
   renderConfig,
   signatories,
+  signatureTotalHeight,
 }: IRenderSignaturesWithPositionOptions) => {
   const pdfPagesMap = new Map<number, IPDFPagesMapItem>();
 
@@ -58,7 +61,12 @@ export const renderSignaturesWithPosition = ({
     } = signatory;
     if (!signatureRenderPosition) return;
 
-    const { page, x, y, height } = signatureRenderPosition;
+    const {
+      page,
+      x,
+      y,
+      height = signatureTotalHeight,
+    } = signatureRenderPosition;
 
     const pdfSignature = new PDFSignature({
       name,
