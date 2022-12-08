@@ -34,11 +34,19 @@ const signatoriesMixed = async () => {
 
   const signatory1 = buildSignatory();
 
-  // TODO: define the signatory2.signatureRenderPosition
+  signatory1.signatureRenderPosition = {
+    page: 0,
+    x: 20,
+    y: 20,
+  };
 
   const signatory2 = buildSignatory();
 
-  // TODO: define the signatory2.signatureRenderPosition
+  signatory2.signatureRenderPosition = {
+    page: 0,
+    x: 20,
+    y: 400,
+  };
 
   signatories = [signatory1, ...signatories, signatory2];
 
@@ -57,6 +65,17 @@ const signatoriesMixed = async () => {
 //----------------------------------------------------------------------------//
 
 (async () => {
+  let label = "signatoriesWithoutPosition";
+  console.time(label);
   await signatoriesWithoutPosition();
+  console.timeEnd(label);
+
+  console.log("");
+
+  label = "signatoriesMixed";
+  console.time(label);
   await signatoriesMixed();
+  console.timeEnd(label);
+
+  console.log("");
 })();
