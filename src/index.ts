@@ -3,14 +3,14 @@ import { generateSignatories } from "@/entities";
 import { uuid } from "@/utils/data/id";
 import { loadPdfFile, writePdfFile } from "@/utils/pdf";
 
-import { processSignatures, debugAll } from "@/pdflibUtils";
+import { processSignatures, debugSet } from "@/pdflibUtils";
 
-(async () => {
+let pdfFileBuffer = loadPdfFile();
+
+const signaturesWithoutPosition = async () => {
   const signatories = generateSignatories();
 
-  let pdfFileBuffer = loadPdfFile();
-
-  debugAll();
+  debugSet(["rendeSealRectangle"]);
 
   pdfFileBuffer = (await processSignatures({
     rawPdf: pdfFileBuffer,
@@ -19,5 +19,9 @@ import { processSignatures, debugAll } from "@/pdflibUtils";
     saveAsBase64: false,
   })) as Buffer;
 
-  writePdfFile(pdfFileBuffer, "result_v2");
+  writePdfFile(pdfFileBuffer, "result_v2_dynamic_positions");
+};
+
+(async () => {
+  await signaturesWithoutPosition();
 })();
