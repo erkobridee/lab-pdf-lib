@@ -41,3 +41,13 @@
 ## reference
 
 - [Digital signatures: how Sleek leverages Cloud HSM to guarantee the integrity of legal documents | Google Developers](https://medium.com/google-developers/digital-signatures-how-sleek-leverages-cloud-hsm-to-guarantee-the-integrity-of-legal-documents-a7bd3b82faf6) - 2019/07/10
+
+## Typescript
+
+- [How to use TypeScript with Node.js | Engineering Education (EngEd) Program - Section](https://www.section.io/engineering-education/how-to-use-typescript-with-nodejs/) - 2021/06/14
+
+- [[GitHub] evan361425/playground-ts-esm](https://github.com/evan361425/playground-ts-esm) - Solve Node.js in ESM and TypeScript with test coverage.
+
+- [TypeScript: TSConfig Option: paths](https://www.typescriptlang.org/tsconfig#paths)
+
+- [How to set an absolute path in TypeScript | Towards the Cloud](https://towardsthecloud.com/set-absolute-path-typescript) - 2022/11/14

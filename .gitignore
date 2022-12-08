@@ -2,4 +2,8 @@
 
 /node_modules
 
+/dist
+
+/coverage
+
 /files/output/*.pdf

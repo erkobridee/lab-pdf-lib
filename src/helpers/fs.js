@@ -44,10 +44,10 @@ const FONT_NAME = {
 };
 
 const FONT_FILE_MAP = {
-  [FONT_NAME.PATRICK_HAND]: path.join(FONTS_DIR, "PatrickHand-Regular.ttf"),
+  [FONT_NAME.PATRICK_HAND]: path.join(FONTS_DIR, "patrick-hand-regular.ttf"),
   [FONT_NAME.ARCHITECTS_DAUGHTER]: path.join(
     FONTS_DIR,
-    "ArchitectsDaughter.ttf"
+    "architects-daughter-regular.ttf"
   ),
 };
 
