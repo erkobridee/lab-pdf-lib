@@ -2,15 +2,17 @@ import type { RGB, PDFPage, PDFPageDrawTextOptions } from "pdf-lib";
 
 import type { IPoint, ISize, TRectangleSpacings } from "@/utils/math/geometry";
 
-import type { IPDFRectangle, TColor, ISignatureFonts } from "@/pdflibUtils";
+import type {
+  IPDFRectangle,
+  IPDFRectangleCoordsLimits,
+  TColor,
+  ISignatureFonts,
+} from "@/pdflibUtils";
 
 //---//
 
 import { roundUp } from "@/utils/math";
-import {
-  IRectangleCoordsLimits,
-  getRectangleSpacings,
-} from "@/utils/math/geometry";
+import { getRectangleSpacings } from "@/utils/math/geometry";
 
 import {
   shouldDebug,
@@ -167,7 +169,7 @@ export interface IPDFSignature extends IPoint, ISize {
   draw: (options: IDrawOptions) => void;
   getComputedCoords: (
     pageContentRectangle?: IPDFRectangle
-  ) => IRectangleCoordsLimits;
+  ) => IPDFRectangleCoordsLimits;
 }
 
 /**

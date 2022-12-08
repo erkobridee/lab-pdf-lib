@@ -1,19 +1,18 @@
 import type { Rotation, PDFPage } from "pdf-lib";
 
+//---===---//
+
 import { degrees, toRadians } from "pdf-lib";
 
 import {
-  CoordsOrientationPDF,
   ISize,
   IPoint,
-  IRectangle,
-  IRectangleFrame,
   IRectangleSpacings,
   TRectangleSpacings,
-  getCoordsFromFrame,
-  getCoordsInsideRectangle,
-  getRectangleCoordsLimits,
+  getRectangleSpacings,
 } from "@/utils/math/geometry";
+
+import { isObject, isNumber } from "@/utils/data/is";
 
 //----------------------------------------------------------------------------//
 
@@ -22,24 +21,54 @@ export interface IPDFRectangle extends ISize, IPoint {
 }
 
 //----------------------------------------------------------------------------//
-// @begin: helpers to transform IPDFRectangle <-> IRectangle(Frame)
 
-const getRectangleFrameFromPDFPageSize = (size: ISize): IRectangleFrame => ({
-  ...size,
-  orientation: CoordsOrientationPDF,
-});
+export interface IPDFRectangleCoordsLimits {
+  yTop: number;
+  yBottom: number;
+  xLeft: number;
+  xRight: number;
+}
 
-const toPDFRectangle = (rectangle: IRectangle): IPDFRectangle => {
-  const { x, y, width, height } = rectangle;
-  return { x, y, width, height };
+interface IGetPDFCoordsLimitsOptions {
+  rectangle: IPDFRectangle;
+  spacings?: TRectangleSpacings;
+  scale?: number;
+}
+
+/**
+ * Calculate the x and y postitions referent of 4 corners
+ *
+ * @param {IGetPDFCoordsLimitsOptions} options
+ * @returns { xRight, xLeft, yTop, yBottom }
+ */
+export const getPDFCoordsLimits = ({
+  rectangle,
+  spacings = 0,
+  scale = 1,
+}: IGetPDFCoordsLimitsOptions): IPDFRectangleCoordsLimits => {
+  const {
+    top: rectanglePaddingTop,
+    bottom: rectanglePaddingBottom,
+    left: rectanglePaddingLeft,
+    right: rectanglePaddingRight,
+  } = getRectangleSpacings(spacings, scale);
+
+  const {
+    x: rectangleX,
+    y: rectangleY,
+    width: rectangleWidth,
+    height: rectangleHeight,
+  } = rectangle;
+
+  const yTop = rectangleY + rectangleHeight - rectanglePaddingTop;
+  const yBottom = rectangleY + rectanglePaddingBottom;
+
+  const xRight = rectangleX + rectangleWidth - rectanglePaddingRight;
+  const xLeft = rectangleX + rectanglePaddingLeft;
+
+  return { yTop, yBottom, xLeft, xRight };
 };
 
-const toRectangle = (rectangle: IPDFRectangle): IRectangle => {
-  const { x, y, width, height } = rectangle;
-  return { x, y, width, height, orientation: CoordsOrientationPDF };
-};
-
-// @end: helpers to transform IPDFRectangle <-> IRectangle(Frame)
 //----------------------------------------------------------------------------//
 
 interface IGetPDFCompensateRotation extends IPoint {
@@ -134,26 +163,40 @@ export const getPDFCoordsFromPage = ({
   y,
   width,
   height,
-  spacings,
-  scale,
+  spacings = 0,
+  scale = 1,
   pdfPage,
 }: IGetPDFCoordsFromPageOptions): IPDFRectangle => {
   const rotation = pdfPage.getRotation();
-  const pageSize = pdfPage.getSize();
 
-  const frame = getRectangleFrameFromPDFPageSize(pageSize);
+  const { width: pageWidth, height: pageHeight } = pdfPage.getSize();
 
-  const coords = toPDFRectangle(
-    getCoordsFromFrame({ x, y, width, height, frame, scale, spacings })
-  );
+  const { top, bottom, left, right } = getRectangleSpacings(spacings, scale);
+
+  x = (x ?? 0) + left;
+  y = (y ?? 0) + bottom;
+
+  width = (width ?? pageWidth) * scale - (left + right);
+  height = (height ?? pageHeight) * scale - (top + bottom);
 
   const correction = getPDFCompensateRotation({
-    ...coords,
-    onSize: pageSize,
+    x,
+    y,
+    height,
+    scale,
+    onSize: {
+      width: pageWidth,
+      height: pageHeight,
+    },
     rotation,
   });
 
-  return { ...coords, ...correction };
+  return {
+    x: correction.x,
+    y: correction.y,
+    width,
+    height,
+  };
 };
 
 //----------------------------------------------------------------------------//
@@ -175,47 +218,112 @@ interface IGetPDFCoordsInsideRectangleOptions
  * the parameters consider the positioning orientation from left (x: 0) and top (y: 0)
  */
 export const getPDFCoordsInsideRectangle = ({
+  x,
+  y,
+  width = 10,
+  height = 10,
+  top,
+  bottom,
+  left,
+  right,
+  scale = 1,
+  rectangle,
+  rectanglePaddings = 0,
   keepInside = false,
   rotateWith = true,
-  rectangle,
-  ...props
 }: IGetPDFCoordsInsideRectangleOptions): IPDFRectangle => {
+  const requiredRectangleAttributes = ["x", "y", "width", "height"];
+  if (isObject(rectangle)) {
+    const missingRectangleAttributes = requiredRectangleAttributes.reduce(
+      (acc, property) => {
+        if (!rectangle.hasOwnProperty(property)) {
+          acc.push(property);
+        }
+        return acc;
+      },
+      []
+    );
+
+    if (missingRectangleAttributes.length > 0) {
+      throw new Error(
+        `missing attributes { ${missingRectangleAttributes.join(
+          ", "
+        )} } on the Rectangle object`
+      );
+    }
+  } else {
+    throw Error(
+      `the rectangle attribute must be an object that defines { ${requiredRectangleAttributes.join(
+        ", "
+      )} }`
+    );
+  }
+
+  //---===---//
+
   if (!rotateWith && keepInside) {
     rotateWith = true;
   }
 
-  const coords = toPDFRectangle(
-    getCoordsInsideRectangle({
-      ...props,
-      rectangle: toRectangle(rectangle),
-      keepInside,
-    })
-  );
+  const { rotate: rectangleRotate } = rectangle;
 
-  return { ...coords, rotate: rotateWith ? rectangle.rotate : undefined };
-};
-
-//----------------------------------------------------------------------------//
-
-interface IGetPDFCoordsLimitsOptions {
-  rectangle: IPDFRectangle;
-  spacings?: TRectangleSpacings;
-  scale?: number;
-}
-
-/**
- * Calculate the x and y postitions referent of 4 corners
- *
- * @param {IGetPDFCoordsLimitsOptions} options
- * @returns { xRight, xLeft, yTop, yBottom }
- */
-export const getPDFCoordsLimits = ({
-  rectangle,
-  ...props
-}: IGetPDFCoordsLimitsOptions) =>
-  getRectangleCoordsLimits({
-    rectangle: toRectangle(rectangle),
-    ...props,
+  const { yTop, yBottom, xLeft, xRight } = getPDFCoordsLimits({
+    rectangle,
+    spacings: rectanglePaddings,
+    scale,
   });
+
+  //---===---//
+
+  let newWidth = width * scale;
+  let newHeight = height * scale;
+
+  let newX = xLeft + (x ?? 0);
+  let newY = yTop - (height + (y ?? 0));
+
+  if (isNumber(left) || isNumber(right)) {
+    if (isNumber(left)) {
+      newX = xLeft + left;
+    }
+
+    if ((isNumber(left) || isNumber(x)) && isNumber(right)) {
+      newWidth = xRight - newX - right;
+    } else if (isNumber(right)) {
+      newX = xRight - (newWidth + right);
+    }
+  }
+
+  if (isNumber(top) || isNumber(bottom)) {
+    if (isNumber(bottom)) {
+      newY = yBottom + bottom;
+    }
+
+    if ((isNumber(bottom) || isNumber(y)) && isNumber(top)) {
+      newHeight = yTop - newY - top;
+    } else if (isNumber(top)) {
+      newY = yTop - (newHeight + top);
+    }
+  }
+
+  if (keepInside) {
+    const xWidth = newX + newWidth;
+    if (xWidth > xRight) {
+      newWidth = newWidth - (xRight - xWidth);
+    }
+
+    const yHeight = newY + newHeight;
+    if (yHeight > yTop) {
+      newHeight = newHeight - (yTop - yHeight);
+    }
+  }
+
+  return {
+    x: newX,
+    y: newY,
+    width: newWidth,
+    height: newHeight,
+    rotate: rotateWith ? rectangleRotate : undefined,
+  };
+};
 
 //----------------------------------------------------------------------------//

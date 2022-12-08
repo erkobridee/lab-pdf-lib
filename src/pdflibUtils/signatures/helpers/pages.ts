@@ -1,12 +1,8 @@
 import type { PDFDocument, PDFPage } from "pdf-lib";
 
-import type {
-  ISize,
-  IRectangleCoordsLimits,
-  TRectangleSpacings,
-} from "@/utils/math/geometry";
+import type { ISize, TRectangleSpacings } from "@/utils/math/geometry";
 
-import type { IPDFRectangle } from "@/pdflibUtils";
+import type { IPDFRectangle, IPDFRectangleCoordsLimits } from "@/pdflibUtils";
 
 //---//
 
@@ -25,7 +21,7 @@ import {
 interface IDebugHelperOptions {
   pdfPage: PDFPage;
   pageContentRectangle: IPDFRectangle;
-  pageContentCoordsLimits: IRectangleCoordsLimits;
+  pageContentCoordsLimits: IPDFRectangleCoordsLimits;
   pageMargins: number;
 }
 
@@ -37,6 +33,12 @@ const debugHelper = ({
   pageMargins,
 }: IDebugHelperOptions) => {
   if (!shouldDebug(DEBUG_KEY)) return;
+
+  console.log("pdflibUtils/signatures/helpers/pages -> debugHelper", {
+    pageContentRectangle,
+    pageContentCoordsLimits,
+    pageMargins,
+  });
 
   const { margins, verticalGuideLine, horizontalGuideLines } =
     getDebugRenderConfig(DEBUG_KEY);
@@ -96,7 +98,7 @@ export interface IPageConfig {
 interface ISignaturesPageBase {
   pageSize: ISize;
   pageContentRectangle: IPDFRectangle;
-  pageContentCoordsLimits: IRectangleCoordsLimits;
+  pageContentCoordsLimits: IPDFRectangleCoordsLimits;
   pageMargins: TRectangleSpacings;
 }
 
