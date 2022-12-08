@@ -3,7 +3,6 @@ import type { PDFDocument } from "pdf-lib";
 import type {
   IRenderSignatureConfig,
   IPageConfig,
-  ISignatureFonts,
 } from "@/pdflibUtils/signatures";
 
 //---//
@@ -43,8 +42,6 @@ interface IRenderSignaturesOptions {
   pageContentColumnsGap?: number;
 
   renderSignatureConfig?: IRenderSignatureConfig;
-
-  fonts: ISignatureFonts;
 }
 
 export const renderSignatures = async ({
