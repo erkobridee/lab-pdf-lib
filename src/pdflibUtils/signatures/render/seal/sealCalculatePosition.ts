@@ -42,7 +42,7 @@ const calculateSealPoint = ({
     shouldAddPage = false;
 
   const pdfSignaturesLength = pdfSignatures.length;
-  if (pdfSignaturesLength) {
+  if (pdfSignaturesLength === 0) {
     return {
       x,
       y,
