@@ -1,11 +1,13 @@
 import type { Rotation, PDFPage } from "pdf-lib";
 
+import type { ISize, IPoint } from "@/utils/math/geometry";
+
+//---===---//
+
 import { degrees, toRadians } from "pdf-lib";
 
 import {
   CoordsOrientationPDF,
-  ISize,
-  IPoint,
   IRectangle,
   IRectangleFrame,
   IRectangleSpacings,
@@ -13,7 +15,7 @@ import {
   getCoordsFromFrame,
   getCoordsInsideRectangle,
   getRectangleCoordsLimits,
-} from "@/utils/math/geometry";
+} from "@/utils/math/geometry/rectangle_OLD";
 
 //----------------------------------------------------------------------------//
 
