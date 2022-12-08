@@ -27,6 +27,10 @@ export const processSignatures = async ({
     acroformId,
     signatories,
     sealRenderPosition,
+
+    renderSignatureConfig: {
+      displayLocation: true,
+    },
   });
 
   return await savePdf({ pdfDoc, saveAsBase64 });
