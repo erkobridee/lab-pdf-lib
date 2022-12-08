@@ -30,8 +30,8 @@ export const PDF_LIB_UTILS_RENDER_CONFIG = {
   },
 
   rendeSealRectangle: {
-    color: COLOR.NAVAJO_WHITE,
-    borderColor: COLOR.LIGHT_BROWN,
+    color: COLOR.FLORAL_WHITE,
+    borderColor: COLOR.NAVAJO_WHITE,
     borderWidth: 1,
   },
 };
