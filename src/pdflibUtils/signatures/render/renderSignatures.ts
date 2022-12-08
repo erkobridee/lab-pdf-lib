@@ -41,7 +41,7 @@ interface IRenderSignaturesOptions {
   pageContentRowsGap?: number;
   pageContentColumnsGap?: number;
 
-  renderSignatureConfig?: IRenderSignatureConfig;
+  renderSignatureConfig?: Partial<IRenderSignatureConfig>;
 }
 
 export const renderSignatures = async ({
