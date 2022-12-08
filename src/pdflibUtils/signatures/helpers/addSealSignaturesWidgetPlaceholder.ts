@@ -19,7 +19,6 @@ import {
   COLOR,
   shouldDebug,
   getDebugRenderConfig,
-  getPDFCoordsLimits,
   getPDFCoordsInsideRectangle,
 } from "@/pdflibUtils";
 
@@ -100,10 +99,6 @@ export const addSealSignaturesWidgetPlaceholder = ({
   rectangle,
   fonts,
 }: IAddSealSignaturesWidgetPlaceholderOptions) => {
-  const { xLeft, yBottom, xRight, yTop } = getPDFCoordsLimits({ rectangle });
-
-  //--------------------------------------------------------------------------//
-
   debugHelper({ pdfPage, rectangle, fonts });
 
   //--------------------------------------------------------------------------//
@@ -150,10 +145,10 @@ export const addSealSignaturesWidgetPlaceholder = ({
   const widgetDictMap = new Map();
   const APMap = new Map();
   const arrayRect = PDFArray.withContext(pdfDoc.context);
-  arrayRect.push(PDFNumber.of(xLeft));
-  arrayRect.push(PDFNumber.of(yBottom));
-  arrayRect.push(PDFNumber.of(xRight));
-  arrayRect.push(PDFNumber.of(yTop));
+  arrayRect.push(PDFNumber.of(rectangle.x));
+  arrayRect.push(PDFNumber.of(rectangle.y));
+  arrayRect.push(PDFNumber.of(rectangle.width));
+  arrayRect.push(PDFNumber.of(rectangle.height));
   APMap.set(PDFName.of("N"), sigAppearanceStreamRef);
 
   widgetDictMap.set(PDFName.Type, PDFName.of("Annot"));
