@@ -82,10 +82,13 @@ const debugHelper = ({ pdfPage, rectangle, fonts }: IDebugHelperOptions) => {
 interface IAddSealSignaturesWidgetPlaceholderOptions {
   /** needed to access the AcroForm and also the pdf context object */
   pdfDoc: PDFDocument;
+
   /** the page which will be added the widget */
   pdfPage: PDFPage;
+
   /** id for the widget, that lately will be used by the LuxTrust to render the Seal */
   acroformId: string;
+
   /** position of the widget on the page */
   rectangle: IPDFRectangle;
 
@@ -115,6 +118,8 @@ export const addSealSignaturesWidgetPlaceholder = ({
 
   //--------------------------------------------------------------------------//
 
+  const { x, y, width, height } = rectangle;
+
   /*
     Creates an additional shape on pdf, which acts as background for
     the signature text which is added by external signature provider later on (e.g. LuxTrust)
@@ -124,8 +129,8 @@ export const addSealSignaturesWidgetPlaceholder = ({
     drawRectangle({
       x: PDFNumber.of(0),
       y: PDFNumber.of(0),
-      width: PDFNumber.of(rectangle.width),
-      height: PDFNumber.of(rectangle.height),
+      width: PDFNumber.of(width),
+      height: PDFNumber.of(height),
       color: undefined,
       borderWidth: 0,
       borderColor: undefined,
@@ -145,10 +150,10 @@ export const addSealSignaturesWidgetPlaceholder = ({
   const widgetDictMap = new Map();
   const APMap = new Map();
   const arrayRect = PDFArray.withContext(pdfDoc.context);
-  arrayRect.push(PDFNumber.of(rectangle.x));
-  arrayRect.push(PDFNumber.of(rectangle.y));
-  arrayRect.push(PDFNumber.of(rectangle.width));
-  arrayRect.push(PDFNumber.of(rectangle.height));
+  arrayRect.push(PDFNumber.of(x));
+  arrayRect.push(PDFNumber.of(y));
+  arrayRect.push(PDFNumber.of(x + width));
+  arrayRect.push(PDFNumber.of(y + height));
   APMap.set(PDFName.of("N"), sigAppearanceStreamRef);
 
   widgetDictMap.set(PDFName.Type, PDFName.of("Annot"));
@@ -169,6 +174,8 @@ export const addSealSignaturesWidgetPlaceholder = ({
   //--------------------------------------------------------------------------//
 
   const arrayAnnots = PDFArray.withContext(pdfDoc.context);
+  arrayAnnots.push(widgetDictRef);
+
   pdfPage.node.set(PDFName.Annots, arrayAnnots);
 
   //--------------------------------------------------------------------------//
