@@ -8,10 +8,11 @@ import { roundUp } from "@/utils/math";
 const fontkit = require("@pdf-lib/fontkit");
 
 export enum SignatureFontSize {
-  NAME = 18,
+  NAME = 16,
+
   /** used for the signature text information, like the signature date */
-  INFO = 8,
-  HASH = 7,
+  INFO = 7,
+  HASH = 5,
 }
 
 export interface ILoadSignatureFontsOptions {

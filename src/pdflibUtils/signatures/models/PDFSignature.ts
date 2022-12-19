@@ -45,6 +45,10 @@ export interface IRenderSignatureConfig
   extends Partial<IRenderSignatureConfigBase> {
   fonts: ISignatureFonts;
   backgroundColor?: TColor;
+  backgroundOpacity?: number;
+  backgroundBorderColor?: TColor;
+  backgroundBorderOpacity?: number;
+  backgroundBorderWidth?: number;
   textColor?: TColor;
   textHashColor?: TColor;
 }
@@ -54,6 +58,10 @@ export interface IRenderSignatureConfig
 export interface IPDFSignatureRenderConfig extends IRenderSignatureConfigBase {
   fonts: ISignatureFonts;
   backgroundColor: RGB;
+  backgroundOpacity: number;
+  backgroundBorderColor: RGB;
+  backgroundBorderOpacity: number;
+  backgroundBorderWidth: number;
   textColor: RGB;
   textHashColor: RGB;
 }
@@ -66,6 +74,10 @@ export const processPDFSignatureRenderConfig = ({
   textRowsGap = 5,
   fonts,
   backgroundColor = COLOR.FAFAFA,
+  backgroundOpacity = 0,
+  backgroundBorderColor = COLOR.FAFAFA,
+  backgroundBorderOpacity = 1,
+  backgroundBorderWidth = 0.8,
   textColor = COLOR.BLACK,
   textHashColor = COLOR.SLATE_GRAY,
   displayLocation = false,
@@ -78,6 +90,10 @@ export const processPDFSignatureRenderConfig = ({
   displayLocation,
   displaySizedHash,
   backgroundColor: getRGB(backgroundColor),
+  backgroundOpacity,
+  backgroundBorderColor: getRGB(backgroundBorderColor),
+  backgroundBorderOpacity,
+  backgroundBorderWidth,
   textColor: getRGB(textColor),
   textHashColor: getRGB(textHashColor),
 });
@@ -368,7 +384,13 @@ export class PDFSignature extends PDFSignatureData implements IPDFSignature {
   // @begin: render methods
 
   private drawBackground({ pdfPage, contentRectangle }: IDrawOptions) {
-    const { backgroundColor } = this.renderConfig;
+    const {
+      backgroundColor,
+      backgroundOpacity,
+      backgroundBorderColor,
+      backgroundBorderOpacity,
+      backgroundBorderWidth,
+    } = this.renderConfig;
 
     const DEBUG_KEY = "renderSignature";
     const extraConfig = shouldDebug(DEBUG_KEY)
@@ -377,6 +399,12 @@ export class PDFSignature extends PDFSignatureData implements IPDFSignature {
 
     pdfPage.drawRectangle({
       color: backgroundColor,
+      opacity: backgroundOpacity,
+
+      borderColor: backgroundBorderColor,
+      borderOpacity: backgroundBorderOpacity,
+      borderWidth: backgroundBorderWidth,
+
       ...contentRectangle,
       ...extraConfig,
     });
