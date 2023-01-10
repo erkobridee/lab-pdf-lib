@@ -1,6 +1,6 @@
 # lab-pdf-lib
 
-## pdf-lib test
+## pdf-lib
 
 - [pdf-lib](https://pdf-lib.js.org/)
 
